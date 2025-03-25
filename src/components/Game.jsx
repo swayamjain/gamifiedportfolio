@@ -230,11 +230,12 @@ const Game = () => {
     scene.cursors.right.isDown = false;
 
     if (data.x || data.y) {
-      // Determine primary direction based on joystick position
+      // Fix inverted controls by negating the y value
       if (Math.abs(data.x) > Math.abs(data.y)) {
         scene.cursors[data.x > 0 ? 'right' : 'left'].isDown = true;
       } else {
-        scene.cursors[data.y > 0 ? 'down' : 'up'].isDown = true;
+        // Negate y value to fix inverted controls
+        scene.cursors[data.y < 0 ? 'down' : 'up'].isDown = true;
       }
     }
   };
@@ -262,44 +263,12 @@ const Game = () => {
       {isMobile && (
         <div className="mobile-controls">
           <Joystick 
-            size={100}
+            size={120}
             baseColor="rgba(255, 255, 255, 0.2)"
             stickColor="rgba(255, 255, 255, 0.8)"
             move={handleMove}
             stop={handleStop}
           />
-          <div className="direction-buttons">
-            <button
-              className="direction-button up"
-              onTouchStart={() => handleMove({ y: -1 })}
-              onTouchEnd={handleStop}
-            >
-              <FontAwesomeIcon icon={faArrowUp} />
-            </button>
-            <div className="middle-buttons">
-              <button
-                className="direction-button left"
-                onTouchStart={() => handleMove({ x: -1 })}
-                onTouchEnd={handleStop}
-              >
-                <FontAwesomeIcon icon={faArrowLeft} />
-              </button>
-              <button
-                className="direction-button right"
-                onTouchStart={() => handleMove({ x: 1 })}
-                onTouchEnd={handleStop}
-              >
-                <FontAwesomeIcon icon={faArrowRight} />
-              </button>
-            </div>
-            <button
-              className="direction-button down"
-              onTouchStart={() => handleMove({ y: 1 })}
-              onTouchEnd={handleStop}
-            >
-              <FontAwesomeIcon icon={faArrowDown} />
-            </button>
-          </div>
         </div>
       )}
     </div>
