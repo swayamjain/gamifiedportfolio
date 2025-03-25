@@ -32,7 +32,7 @@ const Game = () => {
       physics: {
         default: "arcade",
         arcade: {
-          debug: true, // Set to true to see collision boxes
+          debug: false, // Set to true to see collision boxes
           gravity: { y: 0 } // No gravity for top-down game
         },
       },
@@ -66,11 +66,11 @@ const Game = () => {
       const map = this.make.tilemap({ key: "map" });
       const tileset = map.addTilesetImage("woodland_indoor", "woodland_indoor");
 
-      // Create all layers in correct order
+      // Create all layers in correct order (added bookshelf)
       const layers = [
         "Ground", "Walls", "doors", "floor mat", "under the table",
         "table", "on the table", "on the table2", "bar", "on the bar",
-        "boundary", "boundary2"
+        "bookshelf", "boundary", "boundary2"  // Added bookshelf layer
       ];
 
       layers.forEach(layerName => {
@@ -82,13 +82,15 @@ const Game = () => {
         'collison',           // Main collision layer
         'door collision',     // Door collisions
         'table collison',     // Table collisions
-        'bas collision'       // Bar collisions
+        'bas collision',      // Bar collisions
+        'on the bas collision' // Added this collision layer that was in map.json
       ];
       
       // Create player at a better starting position
-      this.player = this.physics.add.sprite(240, 300, "player");
+      this.player = this.physics.add.sprite(245, 372, "player");
       this.player.setCollideWorldBounds(true);
-      this.player.setSize(20, 20); // Make collision box slightly smaller than sprite
+      this.player.setSize(20, 20);     // Make collision box smaller than sprite
+      this.player.setOffset(6, 10);    // Offset collision box (x: 6 pixels right, y: 10 pixels down)
 
       // Set up collision objects
       const colliders = this.physics.add.staticGroup();
@@ -187,6 +189,7 @@ const Game = () => {
       // Add safety check for cursors
       if (!this.cursors) return;
       
+      
       // Stop any previous movement
       this.player.setVelocity(0);
 
@@ -252,9 +255,6 @@ const Game = () => {
 
   return (
     <div className="game-container">
-      <h1 className="game-title">
-        My Portfolio Game
-      </h1>
       <div 
         ref={gameRef}
         className="game-canvas"
