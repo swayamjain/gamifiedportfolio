@@ -132,6 +132,28 @@
         }, 
         {
          "draworder":"topdown",
+         "id":36,
+         "name":"githubTrigger",
+         "objects":[
+                {
+                 "height":5.5,
+                 "id":29,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":42.5,
+                 "x":426,
+                 "y":54
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":26,
          "name":"door collision",
          "objects":[
@@ -159,6 +181,28 @@
                  "type":"bool",
                  "value":true
                 }],
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":37,
+         "name":"knifeTrigger",
+         "objects":[
+                {
+                 "height":19,
+                 "id":30,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":23.5,
+                 "x":165.5,
+                 "y":73.5
+                }],
+         "opacity":1,
          "type":"objectgroup",
          "visible":true,
          "x":0,
@@ -369,7 +413,8 @@
          "width":15,
          "x":0,
          "y":0
-        }, 
+        },
+    
         {
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -421,8 +466,7 @@
          "width":15,
          "x":0,
          "y":0
-        },
-    
+        }, 
         {
          "draworder":"topdown",
          "id":28,
@@ -523,8 +567,8 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":140.5,
-                 "x":138.5,
+                 "width":151.5,
+                 "x":132.5,
                  "y":61.5
                 }],
          "opacity":1,
@@ -613,8 +657,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":36,
- "nextobjectid":29,
+ "nextlayerid":38,
+ "nextobjectid":31,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
