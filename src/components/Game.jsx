@@ -32,7 +32,7 @@ const Game = () => {
       physics: {
         default: "arcade",
         arcade: {
-          debug: false, // Set to true to see collision boxes
+          debug: true, // Set to true to see collision boxes
           gravity: { y: 0 } // No gravity for top-down game
         },
       },
@@ -55,7 +55,7 @@ const Game = () => {
       this.load.image('woodland_indoor', './assets/tilesets/tileset.png');
       this.load.spritesheet("player", "./assets/player.png", {
         frameWidth: 32,
-        frameHeight: 32,
+        frameHeight: 64,
         spacing: 0,
         margin: 0
       });
@@ -66,16 +66,36 @@ const Game = () => {
       const map = this.make.tilemap({ key: "map" });
       const tileset = map.addTilesetImage("woodland_indoor", "woodland_indoor");
 
-      // Create all layers in correct order (added bookshelf)
-      const layers = [
-        "Ground", "Walls", "doors", "floor mat", "under the table",
-        "table", "on the table", "on the table2", "bar", "on the bar",
-        "bookshelf", "boundary", "boundary2"  // Added bookshelf layer
-      ];
+      // Create layers with specific depths
+      const layers = {};
+      
+      // Ground and lower layers (depth 0-10)
+      layers.ground = map.createLayer("Ground", tileset).setDepth(0);
+      layers.walls = map.createLayer("Walls", tileset).setDepth(1);
+      layers.doors = map.createLayer("doors", tileset).setDepth(2);
+      layers.floorMat = map.createLayer("floor mat", tileset).setDepth(3);
+      
+      // Chair layer (depth 15)
+      layers.underTable = map.createLayer("under the table", tileset).setDepth(10);
+      
+      // Table and upper layers (depth 25-35)
+      layers.tabledepth = map.createLayer("tabledepth", tileset).setDepth(17);
+      layers.table = map.createLayer("table", tileset).setDepth(10);
+      layers.onTable = map.createLayer("on the table", tileset).setDepth(32);
+      layers.onTable2 = map.createLayer("on the table2", tileset).setDepth(33);
+      layers.onTable3 = map.createLayer("on the table3", tileset).setDepth(31);
+      layers.bar = map.createLayer("bar", tileset).setDepth(10);
+      layers.onBar = map.createLayer("on the bar", tileset).setDepth(10);
+      layers.bookshelf = map.createLayer("bookshelf", tileset).setDepth(10);
+      layers.boundary = map.createLayer("boundary", tileset).setDepth(10);
+      layers.boundary2 = map.createLayer("boundary2", tileset).setDepth(10);
 
-      layers.forEach(layerName => {
-        map.createLayer(layerName, tileset);
-      });
+      // Create player with initial depth between chairs and tables
+      this.player = this.physics.add.sprite(245, 372, "player");
+      this.player.setCollideWorldBounds(true);
+      this.player.setSize(20, 45);     // Collision box for 32x64 sprite
+      this.player.setOffset(6, 14);    // Offset collision box
+      this.player.setDepth(12);        // Default depth between chairs and tables
 
       // Get all collision layers
       const collisionLayers = [
@@ -86,12 +106,6 @@ const Game = () => {
         'on the bas collision' // Added this collision layer that was in map.json
       ];
       
-      // Create player at a better starting position
-      this.player = this.physics.add.sprite(245, 372, "player");
-      this.player.setCollideWorldBounds(true);
-      this.player.setSize(20, 20);     // Make collision box smaller than sprite
-      this.player.setOffset(6, 10);    // Offset collision box (x: 6 pixels right, y: 10 pixels down)
-
       // Set up collision objects
       const colliders = this.physics.add.staticGroup();
       
@@ -99,7 +113,6 @@ const Game = () => {
         const layer = map.getObjectLayer(layerName);
         if (layer && layer.objects) {
           layer.objects.forEach(object => {
-            // Create collision boxes for all objects in collision layers
             const collider = this.add.rectangle(
               object.x + (object.width / 2), 
               object.y + (object.height / 2),
@@ -189,11 +202,10 @@ const Game = () => {
       // Add safety check for cursors
       if (!this.cursors) return;
       
-      
       // Stop any previous movement
       this.player.setVelocity(0);
 
-      // Use this.cursors instead of cursorsRef.current
+      // Movement and animation code
       if (this.cursors.left.isDown) {
         this.player.setVelocityX(-speed);
         this.player.anims.play("walk-left", true);
