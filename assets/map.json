@@ -110,6 +110,28 @@
         }, 
         {
          "draworder":"topdown",
+         "id":35,
+         "name":"skillsTrigger",
+         "objects":[
+                {
+                 "height":21.5454545454545,
+                 "id":26,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":21.3181818181818,
+                 "x":326.681818181818,
+                 "y":31.8181818181818
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":26,
          "name":"door collision",
          "objects":[
@@ -399,7 +421,8 @@
          "width":15,
          "x":0,
          "y":0
-        }, 
+        },
+    
         {
          "draworder":"topdown",
          "id":28,
@@ -450,8 +473,7 @@
          "visible":true,
          "x":0,
          "y":0
-        },
-    
+        }, 
         {
          "data":[0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 155, 190, 0, 0, 10, 0, 0, 0, 0,
@@ -591,8 +613,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":35,
- "nextobjectid":26,
+ "nextlayerid":36,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
