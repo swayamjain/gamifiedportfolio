@@ -8,7 +8,22 @@ import './Game.css';  // Import the stylesheet
 const Game = () => {
   const gameRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showDialogue, setShowDialogue] = useState(false);
   const sceneRef = useRef(null);
+  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
+  const [showSkillsDialogue, setShowSkillsDialogue] = useState(false);
+
+  // Define your skills
+  const skills = [
+    "JavaScript",
+    "React",
+    "Phaser.js",
+    "CSS",
+    "HTML",
+    "Node.js",
+    "Git",
+    "Responsive Design"
+  ];
 
   useEffect(() => {
     // Check if we're on mobile
@@ -103,11 +118,14 @@ const Game = () => {
         'door collision',     // Door collisions
         'table collison',     // Table collisions
         'bas collision',      // Bar collisions
-        'on the bas collision' // Added this collision layer that was in map.json
+        'on the bas collision', // Added this collision layer that was in map.json
+        'skillsTrigger'       // New skills trigger layer
       ];
       
       // Set up collision objects
       const colliders = this.physics.add.staticGroup();
+      this.doorColliders = this.physics.add.staticGroup(); // Group for doors
+      this.skillsColliders = this.physics.add.staticGroup(); // New group for skills trigger
       
       collisionLayers.forEach(layerName => {
         const layer = map.getObjectLayer(layerName);
@@ -121,13 +139,91 @@ const Game = () => {
             );
             
             this.physics.add.existing(collider, true);
-            colliders.add(collider);
+            
+            // Add to appropriate group
+            if (layerName === 'door collision') {
+              this.doorColliders.add(collider);
+            } else if (layerName === 'skillsTrigger') {
+              this.skillsColliders.add(collider);
+            } else {
+              colliders.add(collider);
+            }
           });
         }
       });
 
-      // Add collision between player and all colliders
+      // Add regular collisions
       this.physics.add.collider(this.player, colliders);
+
+      // Add door collision with overlap callback
+      let isOverlappingDoor = false;
+      this.physics.add.overlap(
+        this.player,
+        this.doorColliders,
+        () => {
+          if (!isOverlappingDoor) {
+            isOverlappingDoor = true;
+            setShowDialogue(true);
+          }
+        }
+      );
+
+      // Add skills trigger with overlap callback
+      let isOverlappingSkills = false;
+      this.physics.add.overlap(
+        this.player,
+        this.skillsColliders,
+        () => {
+          if (!isOverlappingSkills) {
+            isOverlappingSkills = true;
+            setShowSkillsDialogue(true);
+          }
+        }
+      );
+
+      // Add a check in the scene for when overlap ends
+      this.events.on('update', () => {
+        let touchingDoor = false;
+        this.doorColliders.getChildren().forEach(door => {
+          if (this.physics.overlap(this.player, door)) {
+            touchingDoor = true;
+          }
+        });
+
+        if (!touchingDoor && isOverlappingDoor) {
+          isOverlappingDoor = false;
+          setShowDialogue(false);
+        }
+
+        let touchingSkills = false;
+        this.skillsColliders.getChildren().forEach(skill => {
+          if (this.physics.overlap(this.player, skill)) {
+            touchingSkills = true;
+          }
+        });
+
+        if (!touchingSkills && isOverlappingSkills) {
+          isOverlappingSkills = false;
+          setShowSkillsDialogue(false);
+        }
+      });
+
+      // Add keyboard listeners for dialogue options
+      this.input.keyboard.on('keydown-A', () => {
+        if (showDialogue) {
+          window.open('https://instagram.com/sw4y4mj4in', '_blank');
+          setShowDialogue(false);
+        }
+      });
+
+      this.input.keyboard.on('keydown-S', () => {
+        if (showDialogue) {
+          setShowDialogue(false);
+        }
+        if (showSkillsDialogue) {
+          setShowSkillsDialogue(false);
+        }
+      });
 
       // Create player animations
       this.anims.create({
@@ -225,6 +321,12 @@ const Game = () => {
           this.player.anims.play(`idle-${key.split('-')[1]}`, true);
         }
       }
+
+      // Track player position for dialogue positioning
+      setPlayerPosition({
+        x: this.player.x,
+        y: this.player.y
+      });
     }
 
     return () => {
@@ -265,15 +367,140 @@ const Game = () => {
     scene.cursors.right.isDown = false;
   };
 
+  // Add new styles for the retro dialogue and mobile controls
+  const dialogueStyle = {
+    position: 'absolute',
+    backgroundColor: '#FEF5EA',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    border: '4px solid #fff',
+    boxShadow: '0 0 0 4px #000',
+    color: '#0B1623',
+    padding: '15px',
+    width: '280px',
+    imageRendering: 'pixelated',
+    fontFamily: '"Press Start 2P", monospace',
+    fontSize: '12px',
+    lineHeight: '1.5',
+    zIndex: 1000,
+    // Position above player with margin
+    bottom: `calc(50% + ${playerPosition.y + 100}px)`,
+  };
+
+  const mobileControlsStyle = {
+    position: 'fixed',
+    bottom: '20px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '0 20px',
+    boxSizing: 'border-box',
+    zIndex: 1000
+  };
+
+  const actionButtonStyle = {
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    border: '3px solid #fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    color: 'white',
+    fontSize: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 10px',
+    cursor: 'pointer',
+    fontFamily: '"Press Start 2P", monospace',
+  };
+
+  // Add new styles for the skills dialogue
+  const skillsDialogueStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: '#000',
+    border: '4px solid #fff',
+    boxShadow: '0 0 0 4px #000',
+    color: 'white',
+    padding: '20px',
+    width: '300px',
+    maxWidth: '90%',
+    imageRendering: 'pixelated',
+    fontFamily: '"Press Start 2P", monospace',
+    fontSize: '12px',
+    lineHeight: '1.5',
+    zIndex: 1000,
+    textAlign: 'left',
+  };
+
   return (
     <div className="game-container">
+      <nav className="navbar">
+        <div className="logo">
+          <img src="./assets/logo.png" alt="Logo" className="logo-image" />
+        </div>
+        <div className="portfolio-title">Portfolio</div>
+      </nav>
+
       <div 
         ref={gameRef}
         className="game-canvas"
       />
       
-      {isMobile && (
-        <div className="mobile-controls">
+      {showDialogue && (
+        <div style={dialogueStyle}>
+          <div style={{ marginBottom: '10px' }}>Contact Me</div>
+          <div style={{ marginBottom: '15px' }}>instagram.com/sw4y4mj4in</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            {isMobile ? 'Press buttons to select' : 'Press A for Yes, S for No'}
+          </div>
+        </div>
+      )}
+
+      {showSkillsDialogue && (
+        <div style={skillsDialogueStyle}>
+          <h3>My Skills</h3>
+          <ul>
+            {skills.map(skill => (
+              <li key={skill}>{skill}</li>
+            ))}
+          </ul>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            {isMobile ? 'Press S to close' : 'Press S to close'}
+          </div>
+        </div>
+      )}
+      
+      <div className="controls">
+        <div className="action-buttons">
+          <button 
+            style={{...actionButtonStyle, backgroundColor: '#4CAF50'}}
+            onClick={() => {
+              if (showDialogue) {
+                window.open('https://instagram.com/sw4y4mj4in', '_blank');
+                setShowDialogue(false);
+              }
+            }}
+          >
+            A
+          </button>
+          <button 
+            style={{...actionButtonStyle, backgroundColor: '#f44336'}}
+            onClick={() => {
+              if (showDialogue) {
+                setShowDialogue(false);
+              }
+              if (showSkillsDialogue) {
+                setShowSkillsDialogue(false);
+              }
+            }}
+          >
+            S
+          </button>
+        </div>
+        <div className="joystick-container">
           <Joystick 
             size={120}
             baseColor="rgba(255, 255, 255, 0.2)"
@@ -282,7 +509,7 @@ const Game = () => {
             stop={handleStop}
           />
         </div>
-      )}
+      </div>
     </div>
   );
 };
