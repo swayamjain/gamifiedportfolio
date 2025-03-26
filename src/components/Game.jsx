@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Phaser from "phaser";
 import { Joystick } from 'react-joystick-component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,11 +7,14 @@ import './Game.css';  // Import the stylesheet
 
 const Game = () => {
   const gameRef = useRef(null);
+  const phaserGameRef = useRef(null); // New ref for Phaser game instance
   const [isMobile, setIsMobile] = useState(false);
   const [showDialogue, setShowDialogue] = useState(false);
   const sceneRef = useRef(null);
   const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
   const [showSkillsDialogue, setShowSkillsDialogue] = useState(false);
+  const [showGithubDialogue, setShowGithubDialogue] = useState(false);
+  const [showKnifeDialogue, setShowKnifeDialogue] = useState(false);
 
   // Define your skills
   const skills = [
@@ -24,6 +27,33 @@ const Game = () => {
     "Git",
     "Responsive Design"
   ];
+
+  // At the top level of the Game component, before useEffect
+  const handleKeyDown = useCallback((event) => {
+    switch(event.key.toLowerCase()) {
+      case 'a':
+        if (showDialogue) {
+          window.open('https://instagram.com/sw4y4mj4in', '_blank');
+          setShowDialogue(false);
+        }
+        if (showGithubDialogue) {
+          window.open('https://github.com/swayamjain', '_blank');
+          setShowGithubDialogue(false);
+        }
+        break;
+      case 's':
+        if (showDialogue) setShowDialogue(false);
+        if (showSkillsDialogue) setShowSkillsDialogue(false);
+        if (showGithubDialogue) setShowGithubDialogue(false);
+        if (showKnifeDialogue) setShowKnifeDialogue(false);
+        break;
+    }
+  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   useEffect(() => {
     // Check if we're on mobile
@@ -63,6 +93,7 @@ const Game = () => {
     };
 
     const game = new Phaser.Game(config);
+    phaserGameRef.current = game; // Store game instance in ref
 
     function preload() {
       // Update asset paths to be relative to the base URL
@@ -114,18 +145,22 @@ const Game = () => {
 
       // Get all collision layers
       const collisionLayers = [
-        'collison',           // Main collision layer
-        'door collision',     // Door collisions
-        'table collison',     // Table collisions
-        'bas collision',      // Bar collisions
-        'on the bas collision', // Added this collision layer that was in map.json
-        'skillsTrigger'       // New skills trigger layer
+        'collison',           
+        'door collision',     
+        'table collison',     
+        'bas collision',      
+        'on the bas collision',
+        'skillsTrigger',
+        'githubTrigger',
+        'knifeTrigger'        // Add this new trigger
       ];
       
       // Set up collision objects
       const colliders = this.physics.add.staticGroup();
       this.doorColliders = this.physics.add.staticGroup(); // Group for doors
-      this.skillsColliders = this.physics.add.staticGroup(); // New group for skills trigger
+      this.skillsColliders = this.physics.add.staticGroup(); // Group for skills trigger
+      this.githubColliders = this.physics.add.staticGroup(); // Add this line for GitHub colliders
+      this.knifeColliders = this.physics.add.staticGroup();
       
       collisionLayers.forEach(layerName => {
         const layer = map.getObjectLayer(layerName);
@@ -145,6 +180,10 @@ const Game = () => {
               this.doorColliders.add(collider);
             } else if (layerName === 'skillsTrigger') {
               this.skillsColliders.add(collider);
+            } else if (layerName === 'githubTrigger') {  // Add this condition
+              this.githubColliders.add(collider);
+            } else if (layerName === 'knifeTrigger') {
+              this.knifeColliders.add(collider);
             } else {
               colliders.add(collider);
             }
@@ -181,6 +220,32 @@ const Game = () => {
         }
       );
 
+      // Add Github trigger with overlap callback
+      let isOverlappingGithub = false;
+      this.physics.add.overlap(
+        this.player,
+        this.githubColliders,  // Make sure to create this group like others
+        () => {
+          if (!isOverlappingGithub) {
+            isOverlappingGithub = true;
+            setShowGithubDialogue(true);
+          }
+        }
+      );
+
+      // Add knife overlap detection
+      let isOverlappingKnife = false;
+      this.physics.add.overlap(
+        this.player,
+        this.knifeColliders,
+        () => {
+          if (!isOverlappingKnife) {
+            isOverlappingKnife = true;
+            setShowKnifeDialogue(true);
+          }
+        }
+      );
+
       // Add a check in the scene for when overlap ends
       this.events.on('update', () => {
         let touchingDoor = false;
@@ -206,22 +271,29 @@ const Game = () => {
           isOverlappingSkills = false;
           setShowSkillsDialogue(false);
         }
-      });
 
-      // Add keyboard listeners for dialogue options
-      this.input.keyboard.on('keydown-A', () => {
-        if (showDialogue) {
-          window.open('https://instagram.com/sw4y4mj4in', '_blank');
-          setShowDialogue(false);
-        }
-      });
+        let touchingGithub = false;
+        this.githubColliders.getChildren().forEach(github => {
+          if (this.physics.overlap(this.player, github)) {
+            touchingGithub = true;
+          }
+        });
 
-      this.input.keyboard.on('keydown-S', () => {
-        if (showDialogue) {
-          setShowDialogue(false);
+        if (!touchingGithub && isOverlappingGithub) {
+          isOverlappingGithub = false;
+          setShowGithubDialogue(false);
         }
-        if (showSkillsDialogue) {
-          setShowSkillsDialogue(false);
+
+        let touchingKnife = false;
+        this.knifeColliders.getChildren().forEach(knife => {
+          if (this.physics.overlap(this.player, knife)) {
+            touchingKnife = true;
+          }
+        });
+
+        if (!touchingKnife && isOverlappingKnife) {
+          isOverlappingKnife = false;
+          setShowKnifeDialogue(false);
         }
       });
 
@@ -330,10 +402,12 @@ const Game = () => {
     }
 
     return () => {
+      if (phaserGameRef.current) {
+        phaserGameRef.current.destroy(true);
+      }
       window.removeEventListener('resize', handleResize);
-      game.destroy(true);
     };
-  }, []);
+  }, []); // Run this effect only once on mount
 
   // Updated mobile control handlers
   const handleMove = (data) => {
@@ -436,7 +510,8 @@ const Game = () => {
   };
 
   return (
-    <div className="game-container">
+    <div className="bamboobox">
+      <div className="game-container">
       <nav className="navbar">
         <div className="logo">
           <img src="./assets/logo.png" alt="Logo" className="logo-image" />
@@ -444,23 +519,20 @@ const Game = () => {
         <div className="portfolio-title">Portfolio</div>
       </nav>
 
-      <div 
-        ref={gameRef}
-        className="game-canvas"
-      />
+      <div ref={gameRef} className="game-canvas" />
       
       {showDialogue && (
-        <div style={dialogueStyle}>
+        <div className="dialogue-box">
           <div style={{ marginBottom: '10px' }}>Contact Me</div>
           <div style={{ marginBottom: '15px' }}>instagram.com/sw4y4mj4in</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            {isMobile ? 'Press buttons to select' : 'Press A for Yes, S for No'}
+            Press A for Yes, S for No
           </div>
         </div>
       )}
 
       {showSkillsDialogue && (
-        <div style={skillsDialogueStyle}>
+        <div className="skills-dialogue">
           <h3>My Skills</h3>
           <ul>
             {skills.map(skill => (
@@ -468,11 +540,30 @@ const Game = () => {
             ))}
           </ul>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            {isMobile ? 'Press S to close' : 'Press S to close'}
+            Press S to close
           </div>
         </div>
       )}
-      
+
+      {showGithubDialogue && (
+        <div className="dialogue-box">
+          <div style={{ marginBottom: '10px' }}>See My Work</div>
+          <div style={{ marginBottom: '15px' }}>github.com/swayamjain</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press A for Yes, S for No
+          </div>
+        </div>
+      )}
+
+      {showKnifeDialogue && (
+        <div className="dialogue-box">
+          <div style={{ marginBottom: '15px' }}>That knife looks dangerous, better stay away from it!</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press S to close
+          </div>
+        </div>
+      )}
+
       <div className="controls">
         <div className="action-buttons">
           <button 
@@ -482,6 +573,10 @@ const Game = () => {
                 window.open('https://instagram.com/sw4y4mj4in', '_blank');
                 setShowDialogue(false);
               }
+              if (showGithubDialogue) {
+                window.open('https://github.com/swayamjain', '_blank');
+                setShowGithubDialogue(false);
+              }
             }}
           >
             A
@@ -489,12 +584,10 @@ const Game = () => {
           <button 
             style={{...actionButtonStyle, backgroundColor: '#f44336'}}
             onClick={() => {
-              if (showDialogue) {
-                setShowDialogue(false);
-              }
-              if (showSkillsDialogue) {
-                setShowSkillsDialogue(false);
-              }
+              if (showDialogue) setShowDialogue(false);
+              if (showSkillsDialogue) setShowSkillsDialogue(false);
+              if (showGithubDialogue) setShowGithubDialogue(false);
+              if (showKnifeDialogue) setShowKnifeDialogue(false);
             }}
           >
             S
@@ -510,6 +603,7 @@ const Game = () => {
           />
         </div>
       </div>
+    </div>
     </div>
   );
 };
