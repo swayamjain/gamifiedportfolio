@@ -32,7 +32,7 @@ const Game = () => {
       physics: {
         default: "arcade",
         arcade: {
-          debug: true, // Set to true to see collision boxes
+          debug: flase, // Set to true to see collision boxes
           gravity: { y: 0 } // No gravity for top-down game
         },
       },
