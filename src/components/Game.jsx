@@ -15,6 +15,13 @@ const Game = () => {
   const [showSkillsDialogue, setShowSkillsDialogue] = useState(false);
   const [showGithubDialogue, setShowGithubDialogue] = useState(false);
   const [showKnifeDialogue, setShowKnifeDialogue] = useState(false);
+  const [showNPCDialogue, setShowNPCDialogue] = useState(false);
+  const [dialogueStep, setDialogueStep] = useState(0);
+  const [npcIntroComplete, setNpcIntroComplete] = useState(false);
+  const [dialogueTimer, setDialogueTimer] = useState(null);
+  const [isTyping, setIsTyping] = useState(true);
+  const [displayedText, setDisplayedText] = useState('');
+  const textTimeoutRef = useRef(null);
 
   // Define your skills
   const skills = [
@@ -40,6 +47,13 @@ const Game = () => {
           window.open('https://github.com/swayamjain', '_blank');
           setShowGithubDialogue(false);
         }
+        if (showNPCDialogue) {
+          if (dialogueTimer) {
+            clearTimeout(dialogueTimer);
+            setDialogueTimer(null);
+          }
+          progressDialogue();
+        }
         break;
       case 's':
         if (showDialogue) setShowDialogue(false);
@@ -48,7 +62,7 @@ const Game = () => {
         if (showKnifeDialogue) setShowKnifeDialogue(false);
         break;
     }
-  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue]);
+  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, dialogueTimer]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -119,6 +133,10 @@ const Game = () => {
         frameHeight: 64,
         spacing: 0,
         margin: 0
+      });
+      this.load.spritesheet("npc", "./assets/npc.png", {
+        frameWidth: 32,
+        frameHeight: 64
       });
     }
 
@@ -377,6 +395,70 @@ const Game = () => {
       
       // Store scene reference for mobile controls
       sceneRef.current = this;
+
+      // Create NPC
+      this.npc = this.physics.add.sprite(400, 372, "npc");  // Adjust position as needed
+      this.npc.setDepth(8);
+      
+      // NPC animations
+      this.anims.create({
+        key: "npc-walk-left",
+        frames: this.anims.generateFrameNumbers("npc", { start: 3, end: 5 }),
+        frameRate: 8,
+        repeat: -1
+      });
+      
+      this.anims.create({
+        key: "npc-walk-right",
+        frames: this.anims.generateFrameNumbers("npc", { start: 9, end: 11 }),
+        frameRate: 8,
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: "npc-walk-up",
+        frames: this.anims.generateFrameNumbers("npc", { start: 0, end: 2 }),
+        frameRate: 8,
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: "npc-idle",
+        frames: [{ key: "npc", frame: 3 }],
+        frameRate: 1
+      });
+
+      this.anims.create({
+        key: "npc-idle-bar",
+        frames: [{ key: "npc", frame: 6 }],
+        frameRate: 1
+      });
+
+      // Start NPC movement towards player
+      if (!npcIntroComplete) {
+        this.time.delayedCall(1000, () => {
+          const distance = Phaser.Math.Distance.Between(
+            this.npc.x, this.npc.y,
+            this.player.x, this.player.y
+          );
+          const duration = distance * 10; // Adjust speed as needed
+          
+          this.npc.anims.play("npc-walk-left", true);
+          
+          this.tweens.add({
+            targets: this.npc,
+            x: this.player.x + 50,
+            y: this.player.y, // Stop slightly above player
+            duration: duration,
+            ease: 'Linear',
+            onComplete: () => {
+              this.npc.anims.play("npc-idle");
+              setShowNPCDialogue(true);
+              setNpcIntroComplete(true);
+            }
+          });
+        });
+      }
     }
 
     function update() {
@@ -524,6 +606,132 @@ const Game = () => {
     textAlign: 'left',
   };
 
+  // Update the typeWriter function
+  const typeWriter = useCallback((text, callback) => {
+    setIsTyping(true);
+    let i = 0;
+    const speed = 100; // Adjust typing speed here
+
+    function type() {
+      if (i < text.length) {
+        setDisplayedText(text.substring(0, i + 1));
+        i++;
+        textTimeoutRef.current = setTimeout(type, speed);
+      } else {
+        setIsTyping(false);
+        if (callback) callback();
+      }
+    }
+
+    setDisplayedText('');
+    type();
+  }, []);
+
+  // Update the progressDialogue function
+  const progressDialogue = useCallback(() => {
+    if (isTyping) {
+      // If typing, show full text and start timer
+      clearTimeout(textTimeoutRef.current);
+      setIsTyping(false);
+      const dialogueTexts = [
+        "Hello Adventurer!",
+        "Welcome to our tavern.",
+        "Here you can learn all about our lord from the people and things around you."
+      ];
+      setDisplayedText(dialogueTexts[dialogueStep]);
+      return;
+    }
+
+    setDialogueStep(prev => {
+      if (prev >= 2) {
+        setShowNPCDialogue(false);
+        // Trigger NPC movement after dialogue
+        const scene = sceneRef.current;
+        if (scene && scene.npc) {
+          moveNPCToFinalPosition(scene);
+        }
+        return 0;
+      }
+      const nextStep = prev + 1;
+      const dialogueTexts = [
+        "Hello Adventurer!",
+        "Welcome to our tavern.",
+        "Here you can learn all about our lord from the people and things around you."
+      ];
+      typeWriter(dialogueTexts[nextStep]);
+      return nextStep;
+    });
+  }, [dialogueStep, isTyping, typeWriter]);
+
+  // Update the useEffect for dialogue timing
+  useEffect(() => {
+    if (showNPCDialogue && !isTyping && dialogueStep < 3) {
+      const timer = setTimeout(() => {
+        progressDialogue();
+      }, 3000); // 4 seconds delay between dialogues
+      setDialogueTimer(timer);
+
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    }
+  }, [showNPCDialogue, dialogueStep, isTyping, progressDialogue]);
+
+  // Add an effect to start typewriter when dialogue first shows
+  useEffect(() => {
+    if (showNPCDialogue && dialogueStep === 0) {
+      typeWriter("Hello Adventurer!");
+    }
+  }, [showNPCDialogue, typeWriter]);
+
+  // Add this function to handle the complex NPC movement
+  const moveNPCToFinalPosition = (scene) => {
+    const path = [
+      { x: scene.npc.x + 128, y: scene.npc.y }, // Move right
+      { x: scene.npc.x + 128, y: scene.npc.y - 300 }, // Move up
+      { x: 208, y: scene.npc.y - 300 }, // Move left
+      { x: 208, y: 70 } // Final move up
+    ];
+
+    let currentStep = 0;
+    
+    function moveToNextPoint() {
+      if (currentStep >= path.length) {
+        scene.npc.anims.play("npc-idle-bar");
+        return;
+      }
+
+      const target = path[currentStep];
+      const duration = Phaser.Math.Distance.Between(
+        scene.npc.x, scene.npc.y,
+        target.x, target.y
+      ) * 15; // Adjust speed by changing multiplier
+
+      // Determine animation based on movement direction
+      if (target.x < scene.npc.x) {
+        scene.npc.anims.play("npc-walk-left", true);
+      } else if (target.x > scene.npc.x) {
+        scene.npc.anims.play("npc-walk-right", true);
+      } else if (target.y !== scene.npc.y) {
+        scene.npc.anims.play("npc-walk-up", true);
+      }
+
+      scene.tweens.add({
+        targets: scene.npc,
+        x: target.x,
+        y: target.y,
+        duration: duration,
+        ease: 'Linear',
+        onComplete: () => {
+          currentStep++;
+          moveToNextPoint();
+        }
+      });
+    }
+
+    moveToNextPoint();
+  };
+
   return (
     <div className="game-container">
       <div ref={gameRef} className="game-canvas" />
@@ -567,6 +775,19 @@ const Game = () => {
           <div style={{ marginBottom: '15px' }}>That knife looks dangerous, better stay away from it!</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
             Press S to close
+          </div>
+        </div>
+      )}
+
+      {showNPCDialogue && (
+        <div className="dialogue-box npc-dialogue">
+          <div>
+            <div className={`typewriter ${!isTyping ? 'instant' : ''}`} style={{ marginBottom: '15px' }}>
+              {displayedText}
+            </div>
+            <div style={{ fontSize: '10px', opacity: 0.8 }}>
+              {isTyping ? 'Press A to show all' : 'Press A to continue'}
+            </div>
           </div>
         </div>
       )}

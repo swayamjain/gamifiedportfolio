@@ -210,3 +210,38 @@ html, body {
     padding: 10px;
   }
 }
+
+/* Replace the existing typewriter styles with these */
+.typewriter {
+  display: inline-block;
+  width: 100%;
+  white-space: pre-wrap;
+  overflow: hidden;
+  border-right: 2px solid #E6D5AC;
+}
+
+.typewriter.instant {
+  border-right: none;
+  animation: none;
+}
+
+.typewriter:not(.instant) {
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #E6D5AC }
+}
+
+/* Update NPC dialogue styles */
+.npc-dialogue {
+  background-color: #000;
+  border: 4px solid #483C32;
+  max-width: 400px;
+  padding: 1.5rem;
+}
+
+.npc-dialogue div {
+  color: #E6D5AC;
+}
