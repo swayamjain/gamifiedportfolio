@@ -154,6 +154,7 @@ html, body {
     width: min(60%, 480px);
     margin: 0 auto;
     aspect-ratio: 480 / 416;
+    background-color: #0E1514;
   }
   
   .controls {
@@ -162,14 +163,14 @@ html, body {
   }
   
   .action-buttons {
-    left: 10px;
-    bottom: 10px;
+    left: 25px;
+    bottom: 10%;
     gap: 0.5rem;
   }
   
   .joystick-container {
-    right: 10px;
-    bottom: 10px;
+    right: 25px;
+    bottom: 5%;
   }
 }
 
