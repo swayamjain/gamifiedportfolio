@@ -137,7 +137,7 @@ const Game = () => {
       layers.floorMat = map.createLayer("floor mat", tileset).setDepth(3);
       
       // Chair layer (depth 15)
-      layers.underTable = map.createLayer("under the table", tileset).setDepth(10);
+      layers.underTable = map.createLayer("under the table", tileset).setDepth(13);
       
       // Table and upper layers (depth 25-35)
       layers.tabledepth = map.createLayer("tabledepth", tileset).setDepth(17);
@@ -150,7 +150,7 @@ const Game = () => {
       layers.bookshelf = map.createLayer("bookshelf", tileset).setDepth(10);
       layers.boundary = map.createLayer("boundary", tileset).setDepth(10);
       layers.boundary2 = map.createLayer("boundary2", tileset).setDepth(10);
-
+      layers.underTable2 = map.createLayer("undetabledepth", tileset).setDepth(9);
       // Create player with initial depth between chairs and tables
       this.player = this.physics.add.sprite(245, 372, "player");
       this.player.setCollideWorldBounds(true);
