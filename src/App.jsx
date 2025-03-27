@@ -1,12 +1,7 @@
-import React from "react";
-import Game from "./components/Game";
+import Layout from './components/Layout';
 
 function App() {
-  return (
-    <div>
-      <Game />
-    </div>
-  );
+  return <Layout />;
 }
 
 export default App;

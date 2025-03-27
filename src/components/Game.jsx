@@ -65,7 +65,7 @@ const Game = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Calculate exact map dimensions (15 tiles × 32 pixels, 13 tiles × 32 pixels)
+    // These constants control the base game size
     const MAP_WIDTH = 15 * 32;  // 480 pixels
     const MAP_HEIGHT = 13 * 32; // 416 pixels
 
@@ -74,11 +74,12 @@ const Game = () => {
       width: MAP_WIDTH,
       height: MAP_HEIGHT,
       parent: gameRef.current,
+      backgroundColor: '#111111', // Add background color
       physics: {
         default: "arcade",
         arcade: {
-          debug: false, // Set to true to see collision boxes
-          gravity: { y: 0 } // No gravity for top-down game
+          debug: false,
+          gravity: { y: 0 }
         },
       },
       scene: {
@@ -88,7 +89,21 @@ const Game = () => {
       },
       scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: MAP_WIDTH,
+        height: MAP_HEIGHT,
+        min: {
+          width: MAP_WIDTH * 0.5,  // Allow scaling down to 50%
+          height: MAP_HEIGHT * 0.5
+        },
+        max: {
+          width: MAP_WIDTH,
+          height: MAP_HEIGHT
+        }
+      },
+      render: {
+        pixelArt: true, // Add this for better pixel art rendering
+        antialias: false
       }
     };
 
@@ -510,15 +525,7 @@ const Game = () => {
   };
 
   return (
-    <div className="bamboobox">
-      <div className="game-container">
-      <nav className="navbar">
-        <div className="logo">
-          <img src="./assets/logo.png" alt="Logo" className="logo-image" />
-        </div>
-        <div className="portfolio-title">Portfolio</div>
-      </nav>
-
+    <div className="game-container">
       <div ref={gameRef} className="game-canvas" />
       
       {showDialogue && (
@@ -603,7 +610,6 @@ const Game = () => {
           />
         </div>
       </div>
-    </div>
     </div>
   );
 };

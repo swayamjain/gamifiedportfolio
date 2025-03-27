@@ -1,0 +1,34 @@
+/* Ensure full-page layout */
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures full height */
+    overflow: hidden;
+  }
+  
+  /* Navbar Styling */
+  .navbar {
+    width: 100%;
+    background: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+  }
+  
+  /* Main Content Styling */
+  .main-content {
+    display: flex;
+    justify-content: center;  /* Centers game horizontally */
+    align-items: center;      /* Centers game vertically */
+    flex: 1;                 /* Takes up remaining space */
+    background-color: #0E1514;
+  }
+  
+  /* Phaser Game Canvas */
+  #phaser-game {
+    width: 100%;           /* Adjust width */
+    max-width: 800px;      /* Set max width to avoid overflow */
+    aspect-ratio: 16 / 9;  /* Keeps aspect ratio */
+    background: black;     /* Prevents extra space showing */
+  }
+  
