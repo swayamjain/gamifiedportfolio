@@ -19,9 +19,10 @@ const Game = () => {
   const [dialogueStep, setDialogueStep] = useState(0);
   const [npcIntroComplete, setNpcIntroComplete] = useState(false);
   const [dialogueTimer, setDialogueTimer] = useState(null);
-  const [isTyping, setIsTyping] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const textTimeoutRef = useRef(null);
+  const [skipPressed, setSkipPressed] = useState(false);
 
   // Define your skills
   const skills = [
@@ -35,7 +36,63 @@ const Game = () => {
     "Responsive Design"
   ];
 
-  // At the top level of the Game component, before useEffect
+  // First move the typeWriter function before handleKeyDown
+  const typeWriter = useCallback((text) => {
+    if (!text) return; // Add safety check for empty text
+    
+    setIsTyping(true);
+    setSkipPressed(false);
+    let i = 0;
+    const speed = 100;
+
+    function type() {
+      if (i < text.length && !skipPressed) {
+        setDisplayedText(text.substring(0, i + 1));
+        i++;
+        textTimeoutRef.current = setTimeout(type, speed);
+      } else {
+        setDisplayedText(text);
+        setIsTyping(false);
+      }
+    }
+
+    setDisplayedText('');
+    type();
+  }, [skipPressed]);
+
+  // Then define progressDialogue before handleKeyDown
+  const progressDialogue = useCallback(() => {
+    const dialogueTexts = [
+      "Hello Adventurer!",
+      "Welcome to our tavern.",
+      "Here you can learn all about our lord from the people and things around you."
+    ];
+
+    if (isTyping) {
+      // First press during typing - show full text
+      clearTimeout(textTimeoutRef.current);
+      setDisplayedText(dialogueTexts[dialogueStep]);
+      setIsTyping(false);
+      return;
+    }
+
+    // Second press or auto-progress - go to next dialogue
+    const nextStep = dialogueStep + 1;
+    if (nextStep >= dialogueTexts.length) {
+      setShowNPCDialogue(false);
+      const scene = sceneRef.current;
+      if (scene && scene.npc) {
+        moveNPCToFinalPosition(scene);
+      }
+      setDialogueStep(0);
+      return;
+    }
+
+    setDialogueStep(nextStep);
+    typeWriter(dialogueTexts[nextStep]);
+  }, [dialogueStep, isTyping, typeWriter]);
+
+  // Finally define handleKeyDown
   const handleKeyDown = useCallback((event) => {
     switch(event.key.toLowerCase()) {
       case 'a':
@@ -62,7 +119,7 @@ const Game = () => {
         if (showKnifeDialogue) setShowKnifeDialogue(false);
         break;
     }
-  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, dialogueTimer]);
+  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, dialogueTimer, progressDialogue]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -170,7 +227,7 @@ const Game = () => {
       layers.boundary2 = map.createLayer("boundary2", tileset).setDepth(10);
       layers.underTable2 = map.createLayer("undetabledepth", tileset).setDepth(9);
       // Create player with initial depth between chairs and tables
-      this.player = this.physics.add.sprite(245, 372, "player");
+      this.player = this.physics.add.sprite(245, 362, "player");
       this.player.setCollideWorldBounds(true);
       this.player.setSize(20, 45);     // Collision box for 32x64 sprite
       this.player.setOffset(6, 14);    // Offset collision box
@@ -397,8 +454,12 @@ const Game = () => {
       sceneRef.current = this;
 
       // Create NPC
-      this.npc = this.physics.add.sprite(400, 372, "npc");  // Adjust position as needed
+      this.npc = this.physics.add.sprite(400, 372, "npc");
       this.npc.setDepth(8);
+      this.npc.setCollideWorldBounds(true);  // Keep NPC in world bounds
+      this.npc.body.setImmovable(true);      // Make NPC immovable when player collides
+      this.physics.add.collider(this.player, this.npc, null, null, this);
+      this.npc.setSize(20, 10);
       
       // NPC animations
       this.anims.create({
@@ -455,6 +516,7 @@ const Game = () => {
               this.npc.anims.play("npc-idle");
               setShowNPCDialogue(true);
               setNpcIntroComplete(true);
+              typeWriter("Hello Adventurer!");
             }
           });
         });
@@ -606,83 +668,20 @@ const Game = () => {
     textAlign: 'left',
   };
 
-  // Update the typeWriter function
-  const typeWriter = useCallback((text, callback) => {
-    setIsTyping(true);
-    let i = 0;
-    const speed = 100; // Adjust typing speed here
-
-    function type() {
-      if (i < text.length) {
-        setDisplayedText(text.substring(0, i + 1));
-        i++;
-        textTimeoutRef.current = setTimeout(type, speed);
-      } else {
-        setIsTyping(false);
-        if (callback) callback();
-      }
-    }
-
-    setDisplayedText('');
-    type();
-  }, []);
-
-  // Update the progressDialogue function
-  const progressDialogue = useCallback(() => {
-    if (isTyping) {
-      // If typing, show full text and start timer
-      clearTimeout(textTimeoutRef.current);
-      setIsTyping(false);
-      const dialogueTexts = [
-        "Hello Adventurer!",
-        "Welcome to our tavern.",
-        "Here you can learn all about our lord from the people and things around you."
-      ];
-      setDisplayedText(dialogueTexts[dialogueStep]);
-      return;
-    }
-
-    setDialogueStep(prev => {
-      if (prev >= 2) {
-        setShowNPCDialogue(false);
-        // Trigger NPC movement after dialogue
-        const scene = sceneRef.current;
-        if (scene && scene.npc) {
-          moveNPCToFinalPosition(scene);
-        }
-        return 0;
-      }
-      const nextStep = prev + 1;
-      const dialogueTexts = [
-        "Hello Adventurer!",
-        "Welcome to our tavern.",
-        "Here you can learn all about our lord from the people and things around you."
-      ];
-      typeWriter(dialogueTexts[nextStep]);
-      return nextStep;
-    });
-  }, [dialogueStep, isTyping, typeWriter]);
-
   // Update the useEffect for dialogue timing
   useEffect(() => {
     if (showNPCDialogue && !isTyping && dialogueStep < 3) {
       const timer = setTimeout(() => {
         progressDialogue();
-      }, 3000); // 4 seconds delay between dialogues
+      }, 4000); // Increased time to 4 seconds for better readability
       setDialogueTimer(timer);
 
       return () => {
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
+        setDialogueTimer(null);
       };
     }
   }, [showNPCDialogue, dialogueStep, isTyping, progressDialogue]);
-
-  // Add an effect to start typewriter when dialogue first shows
-  useEffect(() => {
-    if (showNPCDialogue && dialogueStep === 0) {
-      typeWriter("Hello Adventurer!");
-    }
-  }, [showNPCDialogue, typeWriter]);
 
   // Add this function to handle the complex NPC movement
   const moveNPCToFinalPosition = (scene) => {
@@ -698,6 +697,7 @@ const Game = () => {
     function moveToNextPoint() {
       if (currentStep >= path.length) {
         scene.npc.anims.play("npc-idle-bar");
+        scene.npc.body.setImmovable(true); // Ensure NPC stays immovable at final position
         return;
       }
 
@@ -705,7 +705,7 @@ const Game = () => {
       const duration = Phaser.Math.Distance.Between(
         scene.npc.x, scene.npc.y,
         target.x, target.y
-      ) * 15; // Adjust speed by changing multiplier
+      ) * 15;
 
       // Determine animation based on movement direction
       if (target.x < scene.npc.x) {
@@ -722,6 +722,10 @@ const Game = () => {
         y: target.y,
         duration: duration,
         ease: 'Linear',
+        onUpdate: () => {
+          // Keep collision active during movement
+          scene.npc.body.setImmovable(true);
+        },
         onComplete: () => {
           currentStep++;
           moveToNextPoint();
@@ -786,7 +790,7 @@ const Game = () => {
               {displayedText}
             </div>
             <div style={{ fontSize: '10px', opacity: 0.8 }}>
-              {isTyping ? 'Press A to show all' : 'Press A to continue'}
+              {isTyping ? 'Press A to skip' : 'Press A to continue'}
             </div>
           </div>
         </div>
