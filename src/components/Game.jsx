@@ -23,6 +23,11 @@ const Game = () => {
   const [displayedText, setDisplayedText] = useState('');
   const textTimeoutRef = useRef(null);
   const [skipPressed, setSkipPressed] = useState(false);
+  const [showMenuDialogue, setShowMenuDialogue] = useState(false);
+  const [showMenuOptions, setShowMenuOptions] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const menuTimeoutRef = useRef(null);
+  const [isMenuActive, setIsMenuActive] = useState(false);
 
   // Define your skills
   const skills = [
@@ -43,7 +48,7 @@ const Game = () => {
     setIsTyping(true);
     setSkipPressed(false);
     let i = 0;
-    const speed = 100;
+    const speed = 125;
 
     function type() {
       if (i < text.length && !skipPressed) {
@@ -65,7 +70,8 @@ const Game = () => {
     const dialogueTexts = [
       "Hello Adventurer!",
       "Welcome to our tavern.",
-      "Here you can learn all about our lord from the people and things around you."
+      "take a look around and if you need anything,",
+      "you can find me at the bar"
     ];
 
     if (isTyping) {
@@ -92,8 +98,88 @@ const Game = () => {
     typeWriter(dialogueTexts[nextStep]);
   }, [dialogueStep, isTyping, typeWriter]);
 
-  // Finally define handleKeyDown
+  // First, add these state handlers to handle menu navigation
+  const handleMenuSelection = (direction) => {
+    if (!showMenuOptions) return;
+    
+    setSelectedOption(prev => {
+      if (direction === 'up') {
+        return prev === null || prev === 0 ? 3 : prev - 1;
+      } else {
+        return prev === null || prev === 3 ? 0 : prev + 1;
+      }
+    });
+  };
+
+  // Update the handleKeyDown function
   const handleKeyDown = useCallback((event) => {
+    // If menu is active, only allow menu-related keys (A, S, Up, Down)
+    if (isMenuActive) {
+      switch(event.key.toLowerCase()) {
+        case 'arrowup':
+          event.preventDefault();
+          if (showMenuOptions) {
+            handleMenuSelection('up');
+          }
+          break;
+        case 'arrowdown':
+          event.preventDefault();
+          if (showMenuOptions) {
+            handleMenuSelection('down');
+          }
+          break;
+        case 'a':
+          event.preventDefault();
+          if (showMenuOptions) {
+            window.open('https://instagram.com/sw4y4mj4in', '_blank');
+            setShowMenuOptions(false);
+            setShowMenuDialogue(false);
+            setIsMenuActive(false);
+            const scene = sceneRef.current;
+            if (scene?.menuBarrier) {
+              scene.menuBarrier.body.enable = false;
+            }
+            return;
+          }
+          if (showMenuDialogue) {
+            clearTimeout(menuTimeoutRef.current);
+            setSelectedOption(0);
+            setShowMenuOptions(true);
+            setShowMenuDialogue(false);
+            setIsMenuActive(true);
+            return;
+          }
+          break;
+        case 's':
+          event.preventDefault();
+          if (showMenuOptions) {
+            setShowMenuOptions(false);
+            setShowMenuDialogue(false);
+            setIsMenuActive(false);
+            setSelectedOption(null);
+            const scene = sceneRef.current;
+            if (scene?.menuBarrier) {
+              scene.menuBarrier.body.enable = false;
+            }
+            return;
+          }
+          if (showMenuDialogue) {
+            setShowMenuDialogue(false);
+            setIsMenuActive(false);
+            const scene = sceneRef.current;
+            if (scene?.menuBarrier) {
+              scene.menuBarrier.body.enable = false;
+            }
+            return;
+          }
+          break;
+      }
+      // Prevent any other key processing when menu is active
+      event.preventDefault();
+      return;
+    }
+
+    // Normal key handling when menu is not active
     switch(event.key.toLowerCase()) {
       case 'a':
         if (showDialogue) {
@@ -119,7 +205,7 @@ const Game = () => {
         if (showKnifeDialogue) setShowKnifeDialogue(false);
         break;
     }
-  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, dialogueTimer, progressDialogue]);
+  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, showMenuOptions, showMenuDialogue, dialogueTimer, progressDialogue, isMenuActive]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -458,8 +544,20 @@ const Game = () => {
       this.npc.setDepth(8);
       this.npc.setCollideWorldBounds(true);  // Keep NPC in world bounds
       this.npc.body.setImmovable(true);      // Make NPC immovable when player collides
-      this.physics.add.collider(this.player, this.npc, null, null, this);
-      this.npc.setSize(20, 10);
+      this.physics.add.collider(this.player, this.npc, (player, npc) => {
+        if (npc.y === 70 && !showMenuDialogue && !showMenuOptions) {
+          setShowMenuDialogue(true);
+          setIsMenuActive(true);
+          // Enable the barrier when menu opens
+          this.menuBarrier.body.enable = true;
+          menuTimeoutRef.current = setTimeout(() => {
+            setShowMenuOptions(true);
+            setSelectedOption(0);
+            setShowMenuDialogue(false);
+          }, 3000);
+        }
+      }, null, this);
+      this.npc.setSize(20, 13);
       
       // NPC animations
       this.anims.create({
@@ -521,39 +619,47 @@ const Game = () => {
           });
         });
       }
+
+      // Create invisible barrier
+      this.menuBarrier = this.add.rectangle(208, 150, 64, 32); // Position it near the NPC
+      this.physics.add.existing(this.menuBarrier, true); // Make it a static physics body
+      this.menuBarrier.body.enable = false; // Initially disable collision
+      
+      // Add collision between player and barrier
+      this.physics.add.collider(this.player, this.menuBarrier);
     }
 
     function update() {
-      const speed = 160;
+      const speed = 120;
       
-      // Add safety check for cursors
       if (!this.cursors) return;
       
-      // Stop any previous movement
       this.player.setVelocity(0);
 
-      // Movement and animation code
-      if (this.cursors.left.isDown) {
-        this.player.setVelocityX(-speed);
-        this.player.anims.play("walk-left", true);
-      } else if (this.cursors.right.isDown) {
-        this.player.setVelocityX(speed);
-        this.player.anims.play("walk-right", true);
-      } else if (this.cursors.up.isDown) {
-        this.player.setVelocityY(-speed);
-        this.player.anims.play("walk-up", true);
-      } else if (this.cursors.down.isDown) {
-        this.player.setVelocityY(speed);
-        this.player.anims.play("walk-down", true);
-      } else {
-        // Handle idle animations based on last direction
+      // Only allow movement when menu is not active
+      if (!isMenuActive) {
+        if (this.cursors.left.isDown) {
+          this.player.setVelocityX(-speed);
+          this.player.anims.play("walk-left", true);
+        } else if (this.cursors.right.isDown) {
+          this.player.setVelocityX(speed);
+          this.player.anims.play("walk-right", true);
+        } else if (this.cursors.up.isDown) {
+          this.player.setVelocityY(-speed);
+          this.player.anims.play("walk-up", true);
+        } else if (this.cursors.down.isDown) {
+          this.player.setVelocityY(speed);
+          this.player.anims.play("walk-down", true);
+        }
+      }
+
+      if (this.player.body.velocity.x === 0 && this.player.body.velocity.y === 0) {
         const key = this.player.anims.currentAnim ? this.player.anims.currentAnim.key : 'walk-down';
         if (key.startsWith('walk-')) {
           this.player.anims.play(`idle-${key.split('-')[1]}`, true);
         }
       }
 
-      // Track player position for dialogue positioning
       setPlayerPosition({
         x: this.player.x,
         y: this.player.y
@@ -579,14 +685,20 @@ const Game = () => {
     scene.cursors.left.isDown = false;
     scene.cursors.right.isDown = false;
 
-    if (data.x || data.y) {
-      // Fix inverted controls by negating the y value
-      if (Math.abs(data.x) > Math.abs(data.y)) {
-        scene.cursors[data.x > 0 ? 'right' : 'left'].isDown = true;
-      } else {
-        // Negate y value to fix inverted controls
-        scene.cursors[data.y < 0 ? 'down' : 'up'].isDown = true;
+    // Only handle movement if menu is not active
+    if (!isMenuActive) {
+      if (data.x || data.y) {
+        if (Math.abs(data.x) > Math.abs(data.y)) {
+          scene.cursors[data.x > 0 ? 'right' : 'left'].isDown = true;
+        } else {
+          scene.cursors[data.y < 0 ? 'down' : 'up'].isDown = true;
+        }
       }
+    }
+    
+    // Handle menu navigation separately
+    if (showMenuOptions && data.y) {
+      handleMenuSelection(data.y < 0 ? 'down' : 'up');
     }
   };
 
@@ -736,6 +848,30 @@ const Game = () => {
     moveToNextPoint();
   };
 
+  // Add this effect back to handle menu auto-closing when player walks away
+  useEffect(() => {
+    if (showMenuDialogue || showMenuOptions) {
+      const scene = sceneRef.current;
+      if (scene && scene.npc && scene.player) {
+        const distance = Phaser.Math.Distance.Between(
+          scene.npc.x, scene.npc.y,
+          scene.player.x, scene.player.y
+        );
+        if (distance > 50) {
+          setShowMenuDialogue(false);
+          setShowMenuOptions(false);
+          setSelectedOption(null);
+          setIsMenuActive(false);
+          clearTimeout(menuTimeoutRef.current);
+          // Disable the barrier when walking away
+          if (scene.menuBarrier) {
+            scene.menuBarrier.body.enable = false;
+          }
+        }
+      }
+    }
+  }, [playerPosition, showMenuDialogue, showMenuOptions]);
+
   return (
     <div className="game-container">
       <div ref={gameRef} className="game-canvas" />
@@ -796,11 +932,64 @@ const Game = () => {
         </div>
       )}
 
+      {showMenuDialogue && (
+        <div className="dialogue-box npc-dialogue">
+          <div style={{ marginBottom: '15px' }}>
+            We only serve the finest here take a look at our menu
+          </div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press A to view menu, S to close
+          </div>
+        </div>
+      )}
+
+      {showMenuOptions && (
+        <div className="dialogue-box npc-dialogue">
+          <div style={{ marginBottom: '15px' }}>
+            {['Responsive Brand Website', 'UI/UX Design', 'React Web App', 'Custom Order'].map((option, index) => (
+              <div 
+                key={option}
+                style={{ 
+                  padding: '8px',
+                  marginBottom: '5px',
+                  backgroundColor: selectedOption === index ? '#483C32' : 'transparent',
+                  cursor: 'pointer'
+                }}
+              >
+                {option}
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Use ↑↓ to select, A to confirm, S to cancel
+          </div>
+        </div>
+      )}
+
       <div className="controls">
         <div className="action-buttons">
           <button 
             style={{...actionButtonStyle, backgroundColor: '#4CAF50'}}
             onClick={() => {
+              if (showMenuOptions) {
+                window.open('https://instagram.com/sw4y4mj4in', '_blank');
+                setShowMenuOptions(false);
+                setShowMenuDialogue(false);
+                setIsMenuActive(false);
+                const scene = sceneRef.current;
+                if (scene?.menuBarrier) {
+                  scene.menuBarrier.body.enable = false;
+                }
+                return;
+              }
+              if (showMenuDialogue) {
+                clearTimeout(menuTimeoutRef.current);
+                setSelectedOption(0);
+                setShowMenuOptions(true);
+                setShowMenuDialogue(false);
+                setIsMenuActive(true);
+                return;
+              }
               if (showDialogue) {
                 window.open('https://instagram.com/sw4y4mj4in', '_blank');
                 setShowDialogue(false);
@@ -809,6 +998,13 @@ const Game = () => {
                 window.open('https://github.com/swayamjain', '_blank');
                 setShowGithubDialogue(false);
               }
+              if (showNPCDialogue) {
+                if (dialogueTimer) {
+                  clearTimeout(dialogueTimer);
+                  setDialogueTimer(null);
+                }
+                progressDialogue();
+              }
             }}
           >
             A
@@ -816,6 +1012,26 @@ const Game = () => {
           <button 
             style={{...actionButtonStyle, backgroundColor: '#f44336'}}
             onClick={() => {
+              if (showMenuOptions) {
+                setShowMenuOptions(false);
+                setShowMenuDialogue(false);
+                setIsMenuActive(false);
+                setSelectedOption(null);
+                const scene = sceneRef.current;
+                if (scene?.menuBarrier) {
+                  scene.menuBarrier.body.enable = false;
+                }
+                return;
+              }
+              if (showMenuDialogue) {
+                setShowMenuDialogue(false);
+                setIsMenuActive(false);
+                const scene = sceneRef.current;
+                if (scene?.menuBarrier) {
+                  scene.menuBarrier.body.enable = false;
+                }
+                return;
+              }
               if (showDialogue) setShowDialogue(false);
               if (showSkillsDialogue) setShowSkillsDialogue(false);
               if (showGithubDialogue) setShowGithubDialogue(false);
