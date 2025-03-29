@@ -696,12 +696,24 @@ const Game = () => {
       }
     }
     
-    // Handle menu navigation separately
+    // Handle menu navigation with reduced sensitivity
     if (showMenuOptions && data.y) {
-      handleMenuSelection(data.y < 0 ? 'down' : 'up');
+      // Only trigger menu selection if joystick is moved more than 50% in either direction
+      const threshold = 0.4;
+      if (Math.abs(data.y) > threshold) {
+        // Debounce the menu selection to prevent rapid changes
+        if (!menuTimeoutRef.current) {
+          handleMenuSelection(data.y < 0 ? 'down' : 'up');
+          // Set a timeout to prevent rapid selection changes
+          menuTimeoutRef.current = setTimeout(() => {
+            menuTimeoutRef.current = null;
+          }, 250); // 250ms delay between selections
+        }
+      }
     }
   };
 
+  // Make sure to clear the timeout when stopping
   const handleStop = () => {
     const scene = sceneRef.current;
     if (!scene?.cursors) return;
@@ -710,6 +722,12 @@ const Game = () => {
     scene.cursors.down.isDown = false;
     scene.cursors.left.isDown = false;
     scene.cursors.right.isDown = false;
+
+    // Clear the menu selection timeout
+    if (menuTimeoutRef.current) {
+      clearTimeout(menuTimeoutRef.current);
+      menuTimeoutRef.current = null;
+    }
   };
 
   // Add new styles for the retro dialogue and mobile controls
@@ -953,9 +971,19 @@ const Game = () => {
                   padding: '8px',
                   marginBottom: '5px',
                   backgroundColor: selectedOption === index ? '#483C32' : 'transparent',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
+                <span style={{ 
+                  visibility: selectedOption === index ? 'visible' : 'hidden',
+                  marginRight: '8px',
+                  fontFamily: '"Press Start 2P", monospace',
+                  color: '#fff'
+                }}>
+                  {'>'}
+                </span>
                 {option}
               </div>
             ))}
