@@ -28,6 +28,10 @@ const Game = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const menuTimeoutRef = useRef(null);
   const [isMenuActive, setIsMenuActive] = useState(false);
+  const [menuCooldown, setMenuCooldown] = useState(false);
+  const [showSideTable1Dialogue, setShowSideTable1Dialogue] = useState(false);
+  const [showSideTable2Dialogue, setShowSideTable2Dialogue] = useState(false);
+  const [showBarrelDialogue, setShowBarrelDialogue] = useState(false);
 
   // Define your skills
   const skills = [
@@ -167,6 +171,8 @@ const Game = () => {
             setShowMenuDialogue(false);
             setIsMenuActive(false);
             setSelectedOption(null);
+            setMenuCooldown(true); // Set cooldown when menu is closed
+            setTimeout(() => setMenuCooldown(false), 500); // Reset after 500ms
             const scene = sceneRef.current;
             if (scene?.menuBarrier) {
               scene.menuBarrier.body.enable = false;
@@ -176,6 +182,8 @@ const Game = () => {
           if (showMenuDialogue) {
             setShowMenuDialogue(false);
             setIsMenuActive(false);
+            setMenuCooldown(true); // Set cooldown when menu is closed
+            setTimeout(() => setMenuCooldown(false), 500); // Reset after 500ms
             const scene = sceneRef.current;
             if (scene?.menuBarrier) {
               scene.menuBarrier.body.enable = false;
@@ -200,6 +208,18 @@ const Game = () => {
           window.open('https://github.com/swayamjain', '_blank');
           setShowGithubDialogue(false);
         }
+        if (showSideTable1Dialogue) {
+          window.open('https://www.instagram.com/reel/DHH5n5aoLua/', '_blank');
+          setShowSideTable1Dialogue(false);
+        }
+        if (showSideTable2Dialogue) {
+          window.open('https://www.instagram.com/p/Ci5h9KmjjDL/', '_blank');
+          setShowSideTable2Dialogue(false);
+        }
+        if (showBarrelDialogue) {
+          window.open('https://www.instagram.com/p/C8gc1TaNddn/', '_blank');
+          setShowBarrelDialogue(false);
+        }
         if (showNPCDialogue) {
           if (dialogueTimer) {
             clearTimeout(dialogueTimer);
@@ -213,9 +233,12 @@ const Game = () => {
         if (showSkillsDialogue) setShowSkillsDialogue(false);
         if (showGithubDialogue) setShowGithubDialogue(false);
         if (showKnifeDialogue) setShowKnifeDialogue(false);
+        if (showSideTable1Dialogue) setShowSideTable1Dialogue(false);
+        if (showSideTable2Dialogue) setShowSideTable2Dialogue(false);
+        if (showBarrelDialogue) setShowBarrelDialogue(false);
         break;
     }
-  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, showMenuOptions, showMenuDialogue, dialogueTimer, progressDialogue, isMenuActive]);
+  }, [showDialogue, showSkillsDialogue, showGithubDialogue, showKnifeDialogue, showNPCDialogue, showMenuOptions, showMenuDialogue, dialogueTimer, progressDialogue, isMenuActive, menuCooldown, showSideTable1Dialogue, showSideTable2Dialogue, showBarrelDialogue]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -245,7 +268,7 @@ const Game = () => {
       physics: {
         default: "arcade",
         arcade: {
-          debug: false,
+          debug: true,
           gravity: { y: 0 }
         },
       },
@@ -334,7 +357,7 @@ const Game = () => {
       this.player.setOffset(6, 14);    // Offset collision box
       this.player.setDepth(12);        // Default depth between chairs and tables
 
-      // Get all collision layers
+      // First, add the new trigger layers to the collisionLayers array
       const collisionLayers = [
         'collison',           
         'door collision',     
@@ -343,7 +366,13 @@ const Game = () => {
         'on the bas collision',
         'skillsTrigger',
         'githubTrigger',
-        'knifeTrigger'        // Add this new trigger
+        'knifeTrigger',
+        'sidetable1',        // Physical collision
+        'sidetable2',        // Physical collision
+        'barrel',            // Physical collision
+        'sidetable1trigger', // Trigger layer
+        'sidetable2trigger', // Trigger layer
+        'barreltrigger'      // Trigger layer
       ];
       
       // Set up collision objects
@@ -352,31 +381,60 @@ const Game = () => {
       this.skillsColliders = this.physics.add.staticGroup(); // Group for skills trigger
       this.githubColliders = this.physics.add.staticGroup(); // Add this line for GitHub colliders
       this.knifeColliders = this.physics.add.staticGroup();
+      this.sideTable1Colliders = this.physics.add.staticGroup();
+      this.sideTable2Colliders = this.physics.add.staticGroup();
+      this.barrelColliders = this.physics.add.staticGroup();
+      this.sideTable1Triggers = this.physics.add.staticGroup();  // New trigger groups
+      this.sideTable2Triggers = this.physics.add.staticGroup();
+      this.barrelTriggers = this.physics.add.staticGroup();
       
       collisionLayers.forEach(layerName => {
         const layer = map.getObjectLayer(layerName);
         if (layer && layer.objects) {
           layer.objects.forEach(object => {
-            const collider = this.add.rectangle(
+            const rectangle = this.add.rectangle(
               object.x + (object.width / 2), 
               object.y + (object.height / 2),
               object.width,
               object.height
             );
             
-            this.physics.add.existing(collider, true);
+            this.physics.add.existing(rectangle, true);
             
-            // Add to appropriate group
-            if (layerName === 'door collision') {
-              this.doorColliders.add(collider);
-            } else if (layerName === 'skillsTrigger') {
-              this.skillsColliders.add(collider);
-            } else if (layerName === 'githubTrigger') {  // Add this condition
-              this.githubColliders.add(collider);
-            } else if (layerName === 'knifeTrigger') {
-              this.knifeColliders.add(collider);
-            } else {
-              colliders.add(collider);
+            // Add to appropriate group based on layer name
+            switch(layerName) {
+              case 'door collision':
+                this.doorColliders.add(rectangle);
+                break;
+              case 'skillsTrigger':
+                this.skillsColliders.add(rectangle);
+                break;
+              case 'githubTrigger':
+                this.githubColliders.add(rectangle);
+                break;
+              case 'knifeTrigger':
+                this.knifeColliders.add(rectangle);
+                break;
+              case 'sidetable1':
+                this.sideTable1Colliders.add(rectangle);
+                break;
+              case 'sidetable2':
+                this.sideTable2Colliders.add(rectangle);
+                break;
+              case 'barrel':
+                this.barrelColliders.add(rectangle);
+                break;
+              case 'sidetable1trigger':
+                this.sideTable1Triggers.add(rectangle);
+                break;
+              case 'sidetable2trigger':
+                this.sideTable2Triggers.add(rectangle);
+                break;
+              case 'barreltrigger':
+                this.barrelTriggers.add(rectangle);
+                break;
+              default:
+                colliders.add(rectangle);
             }
           });
         }
@@ -437,7 +495,46 @@ const Game = () => {
         }
       );
 
-      // Add a check in the scene for when overlap ends
+      // Update the overlap checks for sidetable1
+      let isOverlappingSideTable1 = false;
+      this.physics.add.overlap(
+        this.player,
+        this.sideTable1Triggers,
+        () => {
+          if (!isOverlappingSideTable1) {
+            isOverlappingSideTable1 = true;
+            setShowSideTable1Dialogue(true);
+          }
+        }
+      );
+
+      // Update the overlap checks for sidetable2
+      let isOverlappingSideTable2 = false;
+      this.physics.add.overlap(
+        this.player,
+        this.sideTable2Triggers,
+        () => {
+          if (!isOverlappingSideTable2) {
+            isOverlappingSideTable2 = true;
+            setShowSideTable2Dialogue(true);
+          }
+        }
+      );
+
+      // Update the overlap checks for barrel
+      let isOverlappingBarrel = false;
+      this.physics.add.overlap(
+        this.player,
+        this.barrelTriggers,
+        () => {
+          if (!isOverlappingBarrel) {
+            isOverlappingBarrel = true;
+            setShowBarrelDialogue(true);
+          }
+        }
+      );
+
+      // Add this to your update event listener
       this.events.on('update', () => {
         let touchingDoor = false;
         this.doorColliders.getChildren().forEach(door => {
@@ -486,7 +583,48 @@ const Game = () => {
           isOverlappingKnife = false;
           setShowKnifeDialogue(false);
         }
+
+        // Add checks for sidetable1
+        let touchingSideTable1 = false;
+        this.sideTable1Triggers.getChildren().forEach(trigger => {
+          if (this.physics.overlap(this.player, trigger)) {
+            touchingSideTable1 = true;
+          }
+        });
+        if (!touchingSideTable1 && isOverlappingSideTable1) {
+          isOverlappingSideTable1 = false;
+          setShowSideTable1Dialogue(false);
+        }
+
+        // Add checks for sidetable2
+        let touchingSideTable2 = false;
+        this.sideTable2Triggers.getChildren().forEach(trigger => {
+          if (this.physics.overlap(this.player, trigger)) {
+            touchingSideTable2 = true;
+          }
+        });
+        if (!touchingSideTable2 && isOverlappingSideTable2) {
+          isOverlappingSideTable2 = false;
+          setShowSideTable2Dialogue(false);
+        }
+
+        // Add checks for barrel
+        let touchingBarrel = false;
+        this.barrelTriggers.getChildren().forEach(trigger => {
+          if (this.physics.overlap(this.player, trigger)) {
+            touchingBarrel = true;
+          }
+        });
+        if (!touchingBarrel && isOverlappingBarrel) {
+          isOverlappingBarrel = false;
+          setShowBarrelDialogue(false);
+        }
       });
+
+      // Keep the physical collisions separate
+      this.physics.add.collider(this.player, this.sideTable1Colliders);
+      this.physics.add.collider(this.player, this.sideTable2Colliders);
+      this.physics.add.collider(this.player, this.barrelColliders);
 
       // Create player animations
       this.anims.create({
@@ -560,7 +698,7 @@ const Game = () => {
       this.npc.setCollideWorldBounds(true);  // Keep NPC in world bounds
       this.npc.body.setImmovable(true);      // Make NPC immovable when player collides
       this.physics.add.collider(this.player, this.npc, (player, npc) => {
-        if (npc.y === 70 && !showMenuDialogue && !showMenuOptions) {
+        if (npc.y === 70 && !showMenuDialogue && !showMenuOptions && !menuCooldown) {
           setShowMenuDialogue(true);
           setIsMenuActive(true);
           // Enable the barrier when menu opens
@@ -994,7 +1132,7 @@ const Game = () => {
       {showMenuDialogue && (
         <div className="dialogue-box npc-dialogue">
           <div style={{ marginBottom: '15px' }}>
-            We only serve the finest here take a look at our menu
+            Order a piping hot wbesite now
           </div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
             Press A to view menu, S to close
@@ -1031,6 +1169,36 @@ const Game = () => {
           </div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
             Use ↑↓ to select, A to confirm, S to cancel
+          </div>
+        </div>
+      )}
+
+      {showSideTable1Dialogue && (
+        <div className="dialogue-box">
+          <div style={{ marginBottom: '10px' }}>PrivChat</div>
+          <div style={{ marginBottom: '15px' }}>it's a glimpse video of my personal project,one on one texting app</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press A for Yes, S for No
+          </div>
+        </div>
+      )}
+
+      {showSideTable2Dialogue && (
+        <div className="dialogue-box">
+          <div style={{ marginBottom: '10px' }}>Python</div>
+          <div style={{ marginBottom: '15px' }}>Oh, I can do python too for scripting purposes</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press A for Yes, S for No
+          </div>
+        </div>
+      )}
+
+      {showBarrelDialogue && (
+        <div className="dialogue-box">
+          <div style={{ marginBottom: '10px' }}>Cinematography</div>
+          <div style={{ marginBottom: '15px' }}>Rather odd skill for a coder, I know</div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            Press A for Yes, S for No
           </div>
         </div>
       )}
@@ -1086,6 +1254,8 @@ const Game = () => {
                 setShowMenuDialogue(false);
                 setIsMenuActive(false);
                 setSelectedOption(null);
+                setMenuCooldown(true); // Set cooldown when menu is closed
+                setTimeout(() => setMenuCooldown(false), 500); // Reset after 500ms
                 const scene = sceneRef.current;
                 if (scene?.menuBarrier) {
                   scene.menuBarrier.body.enable = false;
@@ -1095,6 +1265,8 @@ const Game = () => {
               if (showMenuDialogue) {
                 setShowMenuDialogue(false);
                 setIsMenuActive(false);
+                setMenuCooldown(true); // Set cooldown when menu is closed
+                setTimeout(() => setMenuCooldown(false), 500); // Reset after 500ms
                 const scene = sceneRef.current;
                 if (scene?.menuBarrier) {
                   scene.menuBarrier.body.enable = false;
