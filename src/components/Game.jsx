@@ -45,6 +45,11 @@ const Game = () => {
   const typeWriter = useCallback((text) => {
     if (!text) return; // Add safety check for empty text
     
+    const scene = sceneRef.current;
+    if (scene?.messageSound) {
+      scene.messageSound.play();
+    }
+    
     setIsTyping(true);
     setSkipPressed(false);
     let i = 0;
@@ -101,6 +106,11 @@ const Game = () => {
   // First, add these state handlers to handle menu navigation
   const handleMenuSelection = (direction) => {
     if (!showMenuOptions) return;
+    
+    const scene = sceneRef.current;
+    if (scene?.menuSelectSound) {
+      scene.menuSelectSound.play();
+    }
     
     setSelectedOption(prev => {
       if (direction === 'up') {
@@ -281,6 +291,11 @@ const Game = () => {
         frameWidth: 32,
         frameHeight: 64
       });
+
+      // Load sound effects
+      this.load.audio('message', './assets/sounds/message.mp3');
+      this.load.audio('menuSelect', './assets/sounds/click7.mp3');
+      this.load.audio('walking', './assets/sounds/woodwalking.mp3');
     }
 
     function create() {
@@ -557,7 +572,7 @@ const Game = () => {
           }, 3000);
         }
       }, null, this);
-      this.npc.setSize(20, 13);
+      this.npc.setSize(20, 12);
       
       // NPC animations
       this.anims.create({
@@ -627,6 +642,14 @@ const Game = () => {
       
       // Add collision between player and barrier
       this.physics.add.collider(this.player, this.menuBarrier);
+
+      // Create sound effects
+      this.messageSound = this.sound.add('message');
+      this.menuSelectSound = this.sound.add('menuSelect');
+      this.walkingSound = this.sound.add('walking', {
+        loop: true,
+        volume: 0.35  // Adjust volume as needed
+      });
     }
 
     function update() {
@@ -638,18 +661,36 @@ const Game = () => {
 
       // Only allow movement when menu is not active
       if (!isMenuActive) {
+        let isMoving = false;
+
         if (this.cursors.left.isDown) {
           this.player.setVelocityX(-speed);
           this.player.anims.play("walk-left", true);
+          isMoving = true;
         } else if (this.cursors.right.isDown) {
           this.player.setVelocityX(speed);
           this.player.anims.play("walk-right", true);
+          isMoving = true;
         } else if (this.cursors.up.isDown) {
           this.player.setVelocityY(-speed);
           this.player.anims.play("walk-up", true);
+          isMoving = true;
         } else if (this.cursors.down.isDown) {
           this.player.setVelocityY(speed);
           this.player.anims.play("walk-down", true);
+          isMoving = true;
+        }
+
+        // Play or stop walking sound based on movement
+        if (isMoving && !this.walkingSound.isPlaying) {
+          this.walkingSound.play();
+        } else if (!isMoving && this.walkingSound.isPlaying) {
+          this.walkingSound.stop();
+        }
+      } else {
+        // Stop walking sound when menu is active
+        if (this.walkingSound.isPlaying) {
+          this.walkingSound.stop();
         }
       }
 
