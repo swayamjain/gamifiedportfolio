@@ -77,10 +77,10 @@ const Game = () => {
   // Then define progressDialogue before handleKeyDown
   const progressDialogue = useCallback(() => {
     const dialogueTexts = [
-      "Hello Adventurer!",
-      "Welcome to our tavern.",
-      "take a look around and if you need anything,",
-      "you can find me at the bar"
+      "Welcome to my tavern",
+      "That table’s seen more plans than a war room, and the barrel? Let’s just say it holds more than ale.",
+      "If you're one for secrets, there's a paper by the door in the back.",
+      "Need me? I’ll be at the bar—where all the best tales begin."
     ];
 
     if (isTyping) {
@@ -767,7 +767,7 @@ const Game = () => {
               this.npc.anims.play("npc-idle");
               setShowNPCDialogue(true);
               setNpcIntroComplete(true);
-              typeWriter("Hello Adventurer!");
+              typeWriter("Welcome to my tavern");
             }
           });
         });
