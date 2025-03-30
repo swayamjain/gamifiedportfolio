@@ -1102,7 +1102,7 @@ const Game = () => {
           <div style={{ marginBottom: '10px' }}>See My Work</div>
           <div style={{ marginBottom: '15px' }}>github.com/swayamjain</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            Press A for Yes, S for No
+            Press A to see, S for No
           </div>
         </div>
       )}
@@ -1178,7 +1178,7 @@ const Game = () => {
           <div style={{ marginBottom: '10px' }}>PrivChat</div>
           <div style={{ marginBottom: '15px' }}>it's a glimpse video of my personal project,one on one texting app</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            Press A for Yes, S for No
+            Press A to watch, S for No
           </div>
         </div>
       )}
@@ -1188,7 +1188,7 @@ const Game = () => {
           <div style={{ marginBottom: '10px' }}>Python</div>
           <div style={{ marginBottom: '15px' }}>Oh, I can do python too for scripting purposes</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            Press A for Yes, S for No
+            Press A to see, S for No
           </div>
         </div>
       )}
@@ -1198,7 +1198,7 @@ const Game = () => {
           <div style={{ marginBottom: '10px' }}>Cinematography</div>
           <div style={{ marginBottom: '15px' }}>Rather odd skill for a coder, I know</div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
-            Press A for Yes, S for No
+            Press A to watch, S for No
           </div>
         </div>
       )}
