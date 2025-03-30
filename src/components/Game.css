@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
+@font-face {
+  font-family: 'CELTG';
+  src: url('./assets/fonts/CELTG___.TTF');
+}
+@font-face {
+  font-family: 'morrisromanblack';
+  src: url('./assets/fonts/MorrisRomanBlack.otf');
+}
 /* Reset and base styles */
 * {
   box-sizing: border-box;
@@ -42,7 +49,7 @@ html, body {
 }
 
 /* Dialogue styles */
-.dialogue-box, .skills-dialogue, .github-dialogue, .knife-dialogue {
+.dialogue-box, .github-dialogue, .knife-dialogue {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -56,6 +63,48 @@ html, body {
   z-index: 1001;
   font-size: 0.75rem;
   text-align: center;
+}
+.skills-dialogue {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-image: url('./assets/skillscroll.webp');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 300px;
+  height: 450px;
+  max-width: 90vw;
+  max-height: 90vh;
+  aspect-ratio: 2/3;
+  color: #8B0000;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  font-family: 'morrisromanblack';
+  font-size: 3rem;
+}
+.skills-dialogue h3 {
+  margin-top: 35%;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  margin-bottom: 0.5rem;
+  font-family: 'CELTG';
+}
+.skills-dialogue ul {
+  list-style: none;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0 8%;
+  width: 100%;
+}
+.skills-dialogue li {
+  margin: 0.4rem 0;
+  font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+  line-height: 0.9;
 }
 
 /* Controls */
@@ -244,4 +293,41 @@ html, body {
 
 .npc-dialogue div {
   color: #E6D5AC;
+}
+
+/* Add media queries for smaller screens */
+@media (max-height: 800px) {
+  .skills-dialogue {
+    padding: 0.75rem;
+  }
+  
+  .skills-dialogue h3 {
+    margin-top: 30%;
+  }
+  
+  .skills-dialogue ul {
+    margin-top: 1.25rem;
+  }
+  
+  .skills-dialogue li {
+    margin: 0.3rem 0;
+  }
+}
+
+@media (max-height: 600px) {
+  .skills-dialogue {
+    padding: 0.5rem;
+  }
+  
+  .skills-dialogue h3 {
+    margin-top: 25%;
+  }
+  
+  .skills-dialogue ul {
+    margin-top: 1rem;
+  }
+  
+  .skills-dialogue li {
+    margin: 0.25rem 0;
+  }
 }
