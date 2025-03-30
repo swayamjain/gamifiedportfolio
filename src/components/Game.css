@@ -1,11 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @font-face {
   font-family: 'CELTG';
-  src: url('./assets/fonts/CELTG___.TTF');
+  src: url('/assets/fonts/CELTG.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 @font-face {
   font-family: 'morrisromanblack';
-  src: url('./assets/fonts/MorrisRomanBlack.otf');
+  src: url('/assets/fonts/MorrisRomanBlack.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
 }
 /* Reset and base styles */
 * {
@@ -69,7 +73,7 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-image: url('./assets/skillscroll.png');
+  background-image: url('/assets/skillscroll.webp');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -89,8 +93,8 @@ html, body {
   font-size: 3rem;
 }
 .skills-dialogue h3 {
-  margin-top: 35%;
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  margin-top: 20%;
+  font-size: clamp(0.7rem, 2vw, 1rem);
   margin-bottom: 0.5rem;
   font-family: 'CELTG';
 }
@@ -103,8 +107,8 @@ html, body {
 }
 .skills-dialogue li {
   margin: 0.4rem 0;
-  font-size: clamp(1.2rem, 1.5vw, 1.5rem);
-  line-height: 0.9;
+  font-size: clamp(0.5rem, 1.5vw, 0.8rem);
+  line-height: 1.3;
 }
 
 /* Controls */
@@ -302,11 +306,11 @@ html, body {
   }
   
   .skills-dialogue h3 {
-    margin-top: 30%;
+    margin-top: 18%;
   }
   
   .skills-dialogue ul {
-    margin-top: 1.25rem;
+    margin-top: 0.75rem;
   }
   
   .skills-dialogue li {
@@ -320,11 +324,11 @@ html, body {
   }
   
   .skills-dialogue h3 {
-    margin-top: 25%;
+    margin-top: 15%;
   }
   
   .skills-dialogue ul {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
   
   .skills-dialogue li {
