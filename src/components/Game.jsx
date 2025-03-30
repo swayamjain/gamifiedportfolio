@@ -209,15 +209,15 @@ const Game = () => {
           setShowGithubDialogue(false);
         }
         if (showSideTable1Dialogue) {
-          window.open('https://www.instagram.com/reel/DHH5n5aoLua/', '_blank');
+          window.open('https://www.instagram.com/reel/DHH5n5aoLua', '_blank');
           setShowSideTable1Dialogue(false);
         }
         if (showSideTable2Dialogue) {
-          window.open('https://www.instagram.com/p/Ci5h9KmjjDL/', '_blank');
+          window.open('https://www.instagram.com/p/Ci5h9KmjjDL', '_blank');
           setShowSideTable2Dialogue(false);
         }
         if (showBarrelDialogue) {
-          window.open('https://www.instagram.com/p/C8gc1TaNddn/', '_blank');
+          window.open('https://www.instagram.com/p/C8gc1TaNddn', '_blank');
           setShowBarrelDialogue(false);
         }
         if (showNPCDialogue) {
