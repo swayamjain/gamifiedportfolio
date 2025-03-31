@@ -48,12 +48,12 @@ const Game = () => {
   // First move the typeWriter function before handleKeyDown
   const typeWriter = useCallback((text) => {
     if (!text) return; // Add safety check for empty text
-    
+
     const scene = sceneRef.current;
     if (scene?.messageSound) {
       scene.messageSound.play();
     }
-    
+
     setIsTyping(true);
     setSkipPressed(false);
     let i = 0;
@@ -110,12 +110,12 @@ const Game = () => {
   // First, add these state handlers to handle menu navigation
   const handleMenuSelection = (direction) => {
     if (!showMenuOptions) return;
-    
+
     const scene = sceneRef.current;
     if (scene?.menuSelectSound) {
       scene.menuSelectSound.play();
     }
-    
+
     setSelectedOption(prev => {
       if (direction === 'up') {
         return prev === null || prev === 0 ? 3 : prev - 1;
@@ -129,7 +129,7 @@ const Game = () => {
   const handleKeyDown = useCallback((event) => {
     // If menu is active, only allow menu-related keys (A, S, Up, Down)
     if (isMenuActive) {
-      switch(event.key.toLowerCase()) {
+      switch (event.key.toLowerCase()) {
         case 'arrowup':
           event.preventDefault();
           if (showMenuOptions) {
@@ -155,7 +155,7 @@ const Game = () => {
 
             // Open the selected email template
             window.location.href = emailLinks[selectedOption];
-            
+
             // Reset menu state
             setShowMenuOptions(false);
             setShowMenuDialogue(false);
@@ -209,7 +209,7 @@ const Game = () => {
     }
 
     // Normal key handling when menu is not active
-    switch(event.key.toLowerCase()) {
+    switch (event.key.toLowerCase()) {
       case 'a':
         if (showDialogue) {
           window.open('https://instagram.com/sw4y4mj4in', '_blank');
@@ -339,16 +339,16 @@ const Game = () => {
 
       // Create layers with specific depths
       const layers = {};
-      
+
       // Ground and lower layers (depth 0-10)
       layers.ground = map.createLayer("Ground", tileset).setDepth(0);
       layers.walls = map.createLayer("Walls", tileset).setDepth(1);
       layers.doors = map.createLayer("doors", tileset).setDepth(2);
       layers.floorMat = map.createLayer("floor mat", tileset).setDepth(3);
-      
+
       // Chair layer (depth 15)
       layers.underTable = map.createLayer("under the table", tileset).setDepth(13);
-      
+
       // Table and upper layers (depth 25-35)
       layers.tabledepth = map.createLayer("tabledepth", tileset).setDepth(17);
       layers.table = map.createLayer("table", tileset).setDepth(10);
@@ -370,10 +370,10 @@ const Game = () => {
 
       // First, add the new trigger layers to the collisionLayers array
       const collisionLayers = [
-        'collison',           
-        'door collision',     
-        'table collison',     
-        'bas collision',      
+        'collison',
+        'door collision',
+        'table collison',
+        'bas collision',
         'on the bas collision',
         'skillsTrigger',
         'githubTrigger',
@@ -385,7 +385,7 @@ const Game = () => {
         'sidetable2trigger', // Trigger layer
         'barreltrigger'      // Trigger layer
       ];
-      
+
       // Set up collision objects
       const colliders = this.physics.add.staticGroup();
       this.doorColliders = this.physics.add.staticGroup(); // Group for doors
@@ -398,22 +398,22 @@ const Game = () => {
       this.sideTable1Triggers = this.physics.add.staticGroup();  // New trigger groups
       this.sideTable2Triggers = this.physics.add.staticGroup();
       this.barrelTriggers = this.physics.add.staticGroup();
-      
+
       collisionLayers.forEach(layerName => {
         const layer = map.getObjectLayer(layerName);
         if (layer && layer.objects) {
           layer.objects.forEach(object => {
             const rectangle = this.add.rectangle(
-              object.x + (object.width / 2), 
+              object.x + (object.width / 2),
               object.y + (object.height / 2),
               object.width,
               object.height
             );
-            
+
             this.physics.add.existing(rectangle, true);
-            
+
             // Add to appropriate group based on layer name
-            switch(layerName) {
+            switch (layerName) {
               case 'door collision':
                 this.doorColliders.add(rectangle);
                 break;
@@ -699,7 +699,7 @@ const Game = () => {
 
       // Initialize keyboard controls BEFORE storing the reference
       this.cursors = this.input.keyboard.createCursorKeys();
-      
+
       // Store scene reference for mobile controls
       sceneRef.current = this;
 
@@ -722,7 +722,7 @@ const Game = () => {
         }
       }, null, this);
       this.npc.setSize(20, 12);
-      
+
       // NPC animations
       this.anims.create({
         key: "npc-walk-left",
@@ -730,7 +730,7 @@ const Game = () => {
         frameRate: 8,
         repeat: -1
       });
-      
+
       this.anims.create({
         key: "npc-walk-right",
         frames: this.anims.generateFrameNumbers("npc", { start: 9, end: 11 }),
@@ -765,9 +765,9 @@ const Game = () => {
             this.player.x, this.player.y
           );
           const duration = distance * 10; // Adjust speed as needed
-          
+
           this.npc.anims.play("npc-walk-left", true);
-          
+
           this.tweens.add({
             targets: this.npc,
             x: this.player.x + 50,
@@ -788,7 +788,7 @@ const Game = () => {
       this.menuBarrier = this.add.rectangle(208, 150, 64, 32); // Position it near the NPC
       this.physics.add.existing(this.menuBarrier, true); // Make it a static physics body
       this.menuBarrier.body.enable = false; // Initially disable collision
-      
+
       // Add collision between player and barrier
       this.physics.add.collider(this.player, this.menuBarrier);
 
@@ -803,9 +803,9 @@ const Game = () => {
 
     function update() {
       const speed = 120;
-      
+
       if (!this.cursors) return;
-      
+
       this.player.setVelocity(0);
 
       // Only allow movement when menu is not active
@@ -885,7 +885,7 @@ const Game = () => {
         }
       }
     }
-    
+
     // Handle menu navigation with reduced sensitivity
     if (showMenuOptions && data.y) {
       // Only trigger menu selection if joystick is moved more than 50% in either direction
@@ -1013,7 +1013,7 @@ const Game = () => {
     ];
 
     let currentStep = 0;
-    
+
     function moveToNextPoint() {
       if (currentStep >= path.length) {
         scene.npc.anims.play("npc-idle-bar");
@@ -1083,7 +1083,7 @@ const Game = () => {
   return (
     <div className="game-container">
       <div ref={gameRef} className="game-canvas" />
-      
+
       {showDialogue && (
         <div className="dialogue-box">
           <div style={{ marginBottom: '10px' }}>Contact Me</div>
@@ -1155,9 +1155,9 @@ const Game = () => {
         <div className="dialogue-box npc-dialogue">
           <div style={{ marginBottom: '15px' }}>
             {['Responsive Brand Website', 'UI/UX Design', 'React Web App', 'Custom Order'].map((option, index) => (
-              <div 
+              <div
                 key={option}
-                style={{ 
+                style={{
                   padding: '8px',
                   marginBottom: '5px',
                   backgroundColor: selectedOption === index ? '#483C32' : 'transparent',
@@ -1166,7 +1166,7 @@ const Game = () => {
                   alignItems: 'center'
                 }}
               >
-                <span style={{ 
+                <span style={{
                   visibility: selectedOption === index ? 'visible' : 'hidden',
                   marginRight: '8px',
                   fontFamily: '"Press Start 2P", monospace',
@@ -1216,8 +1216,8 @@ const Game = () => {
 
       <div className="controls">
         <div className="action-buttons">
-          <button 
-            style={{...actionButtonStyle, backgroundColor: '#4CAF50'}}
+          <button
+            style={{ ...actionButtonStyle, backgroundColor: '#4CAF50' }}
             onClick={() => {
               if (showMenuOptions) {
                 // Get the appropriate email link based on selected option
@@ -1230,7 +1230,7 @@ const Game = () => {
 
                 // Open the selected email template
                 window.location.href = emailLinks[selectedOption];
-                
+
                 // Reset menu state
                 setShowMenuOptions(false);
                 setShowMenuDialogue(false);
@@ -1257,6 +1257,18 @@ const Game = () => {
                 window.open('https://github.com/swayamjain', '_blank');
                 setShowGithubDialogue(false);
               }
+              if (showSideTable1Dialogue) {
+                window.open('https://www.instagram.com/reel/DHH5n5aoLua', '_blank');
+                setShowSideTable1Dialogue(false);
+              }
+              if (showSideTable2Dialogue) {
+                window.open('https://www.instagram.com/p/Ci5h9KmjjDL', '_blank');
+                setShowSideTable2Dialogue(false);
+              }
+              if (showBarrelDialogue) {
+                window.open('https://www.instagram.com/p/C8gc1TaNddn', '_blank');
+                setShowBarrelDialogue(false);
+              }
               if (showNPCDialogue) {
                 if (dialogueTimer) {
                   clearTimeout(dialogueTimer);
@@ -1268,8 +1280,8 @@ const Game = () => {
           >
             A
           </button>
-          <button 
-            style={{...actionButtonStyle, backgroundColor: '#f44336'}}
+          <button
+            style={{ ...actionButtonStyle, backgroundColor: '#f44336' }}
             onClick={() => {
               if (showMenuOptions) {
                 setShowMenuOptions(false);
@@ -1299,13 +1311,16 @@ const Game = () => {
               if (showSkillsDialogue) setShowSkillsDialogue(false);
               if (showGithubDialogue) setShowGithubDialogue(false);
               if (showKnifeDialogue) setShowKnifeDialogue(false);
+              if (showSideTable1Dialogue) setShowSideTable1Dialogue(false);
+              if (showSideTable2Dialogue) setShowSideTable2Dialogue(false);
+              if (showBarrelDialogue) setShowBarrelDialogue(false);
             }}
           >
             S
           </button>
         </div>
         <div className="joystick-container">
-          <Joystick 
+          <Joystick
             size={120}
             baseColor="rgba(255, 255, 255, 0.2)"
             stickColor="rgba(255, 255, 255, 0.8)"
