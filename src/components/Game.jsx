@@ -78,9 +78,9 @@ const Game = () => {
   const progressDialogue = useCallback(() => {
     const dialogueTexts = [
       "Welcome to my tavern",
-      "That table’s seen more plans than a war room, and the barrel? Let’s just say it holds more than ale.",
+      "That table's seen more plans than a war room, and the barrel? Let's just say it holds more than ale.",
       "If you're one for secrets, there's a paper by the door in the back.",
-      "Need me? I’ll be at the bar—where all the best tales begin."
+      "Need me? I'll be at the bar—where all the best tales begin."
     ];
 
     if (isTyping) {
@@ -145,7 +145,18 @@ const Game = () => {
         case 'a':
           event.preventDefault();
           if (showMenuOptions) {
-            window.open('https://instagram.com/sw4y4mj4in', '_blank');
+            // Get the appropriate email link based on selected option
+            const emailLinks = [
+              'mailto:jswayam234@gmail.com?subject=Responsive%20Brand%20Design&body=Hello%2C%0A%0AI%20am%20interested%20in%20getting%20a%20responsive%20brand%20design%20for%20my%20business.%20Here%20are%20some%20details%3A%0A%0A-%20Business%20Name%3A%20%20%0A-%20Industry%2FNiche%3A%20%20%0A-%20Preferred%20Color%20Scheme%20%26%20Style%3A%20%20%0A-%20Logo%20%26%20Branding%20Elements%20(if%20any)%3A%20%20%0A-%20Key%20Features%20Needed%3A%20%20%0A-%20Competitor%20Websites%20(if%20any)%3A%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AThank%20you!%20Looking%20forward%20to%20your%20response.%0A',
+              'mailto:jswayam234@gmail.com?subject=UI%2FUX%20Design&body=Hello%2C%0A%0AI%20would%20like%20to%20request%20UI%2FUX%20design%20services.%20Here%20are%20my%20project%20details%3A%0A%0A-%20Project%20Name%3A%20%20%0A-%20Type%20(Website%2FApp%2FDashboard)%3A%20%20%0A-%20Target%20Audience%3A%20%20%0A-%20Preferred%20Design%20Style%20(Minimal%2C%20Modern%2C%20etc.)%3A%20%20%0A-%20Main%20Features%20%26%20Functionalities%3A%20%20%0A-%20Do%20you%20have%20wireframes%20or%20references%3F%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AThanks%2C%20looking%20forward%20to%20working%20with%20you!%0A',
+              'mailto:jswayam234@gmail.com?subject=React%20Web%20App&body=Hello%2C%0A%0AI%20am%20looking%20for%20a%20React-based%20web%20application.%20Here%20are%20the%20project%20details%3A%0A%0A-%20Project%20Name%3A%20%20%0A-%20Purpose%20of%20the%20Web%20App%3A%20%20%0A-%20Key%20Features%20Required%3A%20%20%0A-%20Authentication%20Needed%3F%20(Yes%2FNo)%3A%20%20%0A-%20Third-party%20API%20Integrations%20(if%20any)%3A%20%20%0A-%20Do%20you%20have%20a%20design%20ready%3F%20(Yes%2FNo)%3A%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0ALooking%20forward%20to%20your%20response!%0A',
+              'mailto:jswayam234@gmail.com?subject=Custom%20Order&body=Hello%2C%0A%0AI%20have%20a%20custom%20website%20project%20in%20mind.%20Here%20are%20the%20initial%20details%3A%0A%0A-%20Project%20Type%20(Website%2FWeb%20App%2FOther)%3A%20%20%0A-%20Key%20Features%20%26%20Functionalities%20Needed%3A%20%20%0A-%20Technology%20Preferences%20(if%20any)%3A%20%20%0A-%20Design%20Preferences%20(if%20any)%3A%20%20%0A-%20Any%20References%20or%20Examples%3F%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AExcited%20to%20discuss%20this%20further.%20Please%20let%20me%20know%20your%20thoughts!%0A'
+            ];
+
+            // Open the selected email template
+            window.location.href = emailLinks[selectedOption];
+            
+            // Reset menu state
             setShowMenuOptions(false);
             setShowMenuDialogue(false);
             setIsMenuActive(false);
@@ -1209,7 +1220,18 @@ const Game = () => {
             style={{...actionButtonStyle, backgroundColor: '#4CAF50'}}
             onClick={() => {
               if (showMenuOptions) {
-                window.open('https://instagram.com/sw4y4mj4in', '_blank');
+                // Get the appropriate email link based on selected option
+                const emailLinks = [
+                  'mailto:jswayam234@gmail.com?subject=Responsive%20Brand%20Design&body=Hello%2C%0A%0AI%20am%20interested%20in%20getting%20a%20responsive%20brand%20design%20for%20my%20business.%20Here%20are%20some%20details%3A%0A%0A-%20Business%20Name%3A%20%20%0A-%20Industry%2FNiche%3A%20%20%0A-%20Preferred%20Color%20Scheme%20%26%20Style%3A%20%20%0A-%20Logo%20%26%20Branding%20Elements%20(if%20any)%3A%20%20%0A-%20Key%20Features%20Needed%3A%20%20%0A-%20Competitor%20Websites%20(if%20any)%3A%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AThank%20you!%20Looking%20forward%20to%20your%20response.%0A',
+                  'mailto:jswayam234@gmail.com?subject=UI%2FUX%20Design&body=Hello%2C%0A%0AI%20would%20like%20to%20request%20UI%2FUX%20design%20services.%20Here%20are%20my%20project%20details%3A%0A%0A-%20Project%20Name%3A%20%20%0A-%20Type%20(Website%2FApp%2FDashboard)%3A%20%20%0A-%20Target%20Audience%3A%20%20%0A-%20Preferred%20Design%20Style%20(Minimal%2C%20Modern%2C%20etc.)%3A%20%20%0A-%20Main%20Features%20%26%20Functionalities%3A%20%20%0A-%20Do%20you%20have%20wireframes%20or%20references%3F%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AThanks%2C%20looking%20forward%20to%20working%20with%20you!%0A',
+                  'mailto:jswayam234@gmail.com?subject=React%20Web%20App&body=Hello%2C%0A%0AI%20am%20looking%20for%20a%20React-based%20web%20application.%20Here%20are%20the%20project%20details%3A%0A%0A-%20Project%20Name%3A%20%20%0A-%20Purpose%20of%20the%20Web%20App%3A%20%20%0A-%20Key%20Features%20Required%3A%20%20%0A-%20Authentication%20Needed%3F%20(Yes%2FNo)%3A%20%20%0A-%20Third-party%20API%20Integrations%20(if%20any)%3A%20%20%0A-%20Do%20you%20have%20a%20design%20ready%3F%20(Yes%2FNo)%3A%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0ALooking%20forward%20to%20your%20response!%0A',
+                  'mailto:jswayam234@gmail.com?subject=Custom%20Order&body=Hello%2C%0A%0AI%20have%20a%20custom%20website%20project%20in%20mind.%20Here%20are%20the%20initial%20details%3A%0A%0A-%20Project%20Type%20(Website%2FWeb%20App%2FOther)%3A%20%20%0A-%20Key%20Features%20%26%20Functionalities%20Needed%3A%20%20%0A-%20Technology%20Preferences%20(if%20any)%3A%20%20%0A-%20Design%20Preferences%20(if%20any)%3A%20%20%0A-%20Any%20References%20or%20Examples%3F%20%20%0A%0AAdditional%20Notes%3A%20%20%0A%5BWrite%20anything%20specific%20you%20need%5D%20%20%0A%0AExcited%20to%20discuss%20this%20further.%20Please%20let%20me%20know%20your%20thoughts!%0A'
+                ];
+
+                // Open the selected email template
+                window.location.href = emailLinks[selectedOption];
+                
+                // Reset menu state
                 setShowMenuOptions(false);
                 setShowMenuDialogue(false);
                 setIsMenuActive(false);
