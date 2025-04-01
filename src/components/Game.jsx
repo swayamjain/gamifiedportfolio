@@ -1158,10 +1158,10 @@ const Game = () => {
  )}
 
       {showGithubDialogue && (
-        <div className="dialogue-box">
-          <div style={{ marginBottom: '10px' }}>See My Work</div>
-          <div style={{ marginBottom: '15px' }}>github.com/swayamjain</div>
-          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+        <div className="github-dialogue">
+          <div className="github-head">See My Work</div>
+          <div className="github-cont">github.com/swayamjain</div>
+          <div className="github-afterthought">
             Press A to see, S for No
           </div>
         </div>
