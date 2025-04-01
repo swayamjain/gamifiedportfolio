@@ -450,7 +450,6 @@ const Game = () => {
                 break;
               case 'bookshelftrigger':
                 this.bookshelfTriggers.add(rectangle);
-                break;
               default:
                 colliders.add(rectangle);
             }
@@ -1139,20 +1138,11 @@ const Game = () => {
       )}
       
       {showBookDialogue &&(
-  <div className="book-dialogue">
-    <div className="book-content">
-      <div className="leftpage">
-        <div className="lefthead">Words Of the Wise</div>
-        <div className="leftcont">"Programs must be written for people to read, and only incidentally for machines to execute."
-        <p>— Harold Abelson</p></div> 
-      </div>
-        <div className="rightpage">
-          <div className="righthead">The Coders Creed</div>
-          <div className="rightcont">The lesson, noble traveler, speaks of clarity—let thy code be legible, lest future scribes curse thy name.</div>
+        <div className="book-dialogue">
+        <h3>Book Content</h3>
+        <div style={{ fontSize: '10px', opacity: 0.8 }}>Press S to close</div>
         </div>
-    </div>
-  </div>
- )}
+      )}
 
       {showGithubDialogue && (
         <div className="dialogue-box">

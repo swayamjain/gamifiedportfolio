@@ -110,7 +110,59 @@ html, body {
   font-size: clamp(1.2rem, 1.5vw, 1.5rem);
   line-height: 0.9;
 }
-
+.book-dialogue{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-image: url('/assets/book.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 400px;
+  height: 300px;
+  max-width: 90vw;
+  max-height: 90vh;
+  aspect-ratio: 4/3;
+  color: #8B0000;
+  padding: 1rem;
+}
+.book-content{
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  font-family: 'morrisromanblack';
+}
+.leftpage{
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+  width: 49%;
+}
+.lefthead{
+  font-size: 1.6rem;
+  margin-bottom: 5%;
+}
+.leftcont{
+  font-size: 1.3rem;
+}
+.leftcont p{
+  font-size: 0.9rem;
+  margin-left: 40%;
+}
+.rightpage{
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+  width: 49%;
+}
+.righthead{
+  font-size: 1.6rem;
+  margin-bottom: 5%;
+}
+.rightcont{
+  font-size: 1.3rem;
+}
 /* Controls */
 .controls {
   position: fixed;
