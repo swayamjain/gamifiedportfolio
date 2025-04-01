@@ -1149,6 +1149,9 @@ const Game = () => {
         <div className="rightpage">
           <div className="righthead">The Coders Creed</div>
           <div className="rightcont">The lesson, noble traveler, speaks of clarity—let thy code be legible, lest future scribes curse thy name.</div>
+          <div style={{ fontSize: '1rem', opacity: 0.8}}>
+            Press S to close
+          </div>
         </div>
     </div>
   </div>
@@ -1360,6 +1363,7 @@ const Game = () => {
               if (showSideTable1Dialogue) setShowSideTable1Dialogue(false);
               if (showSideTable2Dialogue) setShowSideTable2Dialogue(false);
               if (showBarrelDialogue) setShowBarrelDialogue(false);
+              if (showBookDialogue) setShowBookDialogue(false);
             }}
           >
             S

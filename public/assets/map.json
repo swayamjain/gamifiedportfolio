@@ -539,13 +539,13 @@
          "name":"bookshelftrigger",
          "objects":[
                 {
-                 "height":32.6666666666667,
+                 "height":40,
                  "id":39,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":61.3333333333333,
+                 "width":62.6666666666667,
                  "x":3.33333333333333,
                  "y":32.6666666666667
                 }],
